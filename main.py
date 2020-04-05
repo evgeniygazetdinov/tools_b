@@ -7,7 +7,7 @@ import time
 from telebot import types
 
 
-do_some_protection()
+#do_some_protection()
 bot = telebot.TeleBot(token)
 
 @bot.message_handler(commands=['start', 'help'])
