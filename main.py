@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 do_some_protection()
 bot = telebot.TeleBot(token)
 
-
 def city(update,context):
   list_of_cities = ['Erode','Coimbatore','London', 'Thunder Bay', 'California']
   button_list = []
@@ -32,7 +31,7 @@ def build_menu(buttons,n_cols,header_buttons=None,footer_buttons=None):
   return menul
 
 
-
+"""
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
    
@@ -49,12 +48,12 @@ def send_welcome(message):
 
 @bot.message_handler(commands=['help'])
 def help_command(message):
-   keyboard = telebot.types.InlineKeyboardMarkup()
-   keyboard.add(
-       telebot.types.InlineKeyboardButton(
-           'Message the developer', url='telegram.me/none'
-       )
-   )
+   #keyboard = telebot.types.InlineKeyboardMarkup()
+  #keyboard.add(
+  #     telebot.types.InlineKeyboardButton(
+  #         'Message the developer', url='telegram.me/none'
+  #     )
+  # )
    bot.send_message(
        message.chat.id,
        '1) To receive a list of available currencies press /exchange.\n' +
@@ -64,12 +63,34 @@ def help_command(message):
        '4) Click “Update” to receive the current information regarding the request. ' +
        'The bot will also show the difference between the previous and the current exchange rates.\n' +
        '5) The bot supports inline. Type @<botusername> in any chat and the first letters of a currency.',
-       reply_markup=keyboard
+       #reply_markup=keyboard
    )
+"""
 
 
+def extract_unique_code(text):
+    # Extracts the unique_code from the sent /start command.
+    return text.split()[1] if len(text.split()) > 1 else None
 
+def in_storage(unique_code): 
+    # Should check if a unique code exists in storage
+    return True
 
+def get_username_from_storage(unique_code): 
+    # Does a query to the storage, retrieving the associated username
+    # Should be replaced by a real database-lookup.
+    return "ABC" if in_storage(unique_code) else None
+
+def save_chat_id(chat_id, username):
+    # Save the chat_id->username to storage
+    # Should be replaced by a real database query.
+    pass
+
+@bot.message_handler(commands=['start'])
+def send_welcome(message):
+        bot.reply_to(message, "введите пароль")
+        print(message['username'])
+  
 
 
 @bot.message_handler(regexp="загруженные мной")
@@ -81,26 +102,6 @@ def instructions(message):
     bot.send_message(message.chat.id, "upoaded:")
 
 
-""""
-@bot.message_handler(func=lambda message: True)
-def echo_all(message):
-    conn = psycopg2.connect(dbname=os.environ['dbname'], user=os.environ['user'],
-                            password=os.environ['password'],
-                            host=os.environ['host'])
 
-    cursor = conn.cursor()
-    cursor.execute(
-        'SELECT home_dealer.name, home_dealer.phone_number, home_car.model, home_car.year, home_car.city, home_car.count FROM home_car, home_dealer WHERE home_car.user_id = home_dealer.id AND model = %s',
-        (message.text,))
-    s = True
-    for row in cursor:
-        bot.reply_to(message, ('Компания: ' + str(row[0]) + '\nНомер телефона: ' + str(row[1]) + '\nМодель: ' + str(
-            row[2]) + '\nГод: ' + str(row[3]) + '\nГород: ' + str(row[4]) + '\nКоличество: ' + str(row[5])))
-        s = False
-    if s:
-        bot.reply_to(message, 'К сожалению, данной модели нет в наличии')
-    cursor.close()
-    conn.close()
-"""
 
 bot.polling(none_stop=True, timeout=123)
