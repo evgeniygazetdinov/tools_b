@@ -10,7 +10,8 @@ URL = "https://api.telegram.org/bot{}/".format(TOKEN)
 
 
 db = DBHelper()
-
+menu_items = ['login','help']
+login_items = ['my_uploads','change_password', 'instructions','end_sessions']
 def get_url(url):
     response = requests.get(url)
     content = response.content.decode("utf8")
@@ -44,35 +45,56 @@ def get_last_update_id(updates):
     return max(update_ids)
 
 
-def handle_updates(updates):
+
+
+def login_handler(updates):
     for update in updates["result"]:
         chat = update["message"]["chat"]["id"]
+        
         try:
             text = update["message"]["text"]
             
             items = db.get_items(chat)
-            if text == '/done':
-                keyboard = build_keyboard(items)
-                send_message('Select an item to delete', chat, keyboard)
-            elif text =='/start':
-                send_message('Welcome to out professional to do list.Send any text  to me and store item when you to remove items put "/done"',chat)
-            elif str(text).startswith('/'):
-                continue
-            elif text in items:
-                db.delete_item(text, chat)
-                items = db.get_items(chat)
-                keyboard = build_keyboard(items)
-                send_message('Select an item to delete', chat, keyboard)
-            else:
-                db.add_item(text, chat)
-                items = db.get_items(chat)
-                message = "\n".join(items)
-                send_message(message, chat)
+            if text =='/start':
+                #check_user_exist()
+                #if not exist create_user
+                #exist this menu
+                keyboard = build_keyboard(menu_items)
+                send_message('Choose your variant', chat, keyboard)
+            if text == 'login':
+
+               keyboard = build_keyboard(login_items)
+               send_message('Choose your variant', chat, keyboard)
+           
         except Exception  as e:
             print(e)
             send_message('this not look a text',chat)
 
-    
+def sucess_login_hanler(updates):
+    for update in updates["result"]:
+        chat = update["message"]["chat"]["id"]
+        
+        try:
+            text = update["message"]["text"]
+            
+            items = db.get_items(chat)
+            if text =='/start':
+                #check_user_exist()
+                #if not exist create_user
+                #exist this menu
+                keyboard = build_keyboard(menu_items)
+                send_message('Choose your variant', chat, keyboard)
+            if text == 'login':
+
+               keyboard = build_keyboard(login_items)
+               send_message('Choose your variant', chat, keyboard)
+           
+        except Exception  as e:
+            print(e)
+            send_message('this not look a text',chat)
+
+
+
 
 def get_last_chat_id_and_text(updates):
     num_updates = len(updates["result"])
@@ -94,9 +116,24 @@ def main():
     last_update_id = None
     while True:
         updates = get_updates(last_update_id)
-        if len(updates["result"]) > 0:
+        if len(updates["result"]) != 0:
             last_update_id = get_last_update_id(updates) + 1
-            handle_updates(updates)
+            #check here picture or message
+            cur_user = updates['result'][0]['message']['chat']['username']
+            cur_chat = updates['result'][0]["message"]["chat"]["id"]
+            cur_message = updates['result'][0]['message']['chat']['username']
+            #if cur_user:#user_exist(cur_user):
+            #    pass
+                #login_handler()
+                #if login_handler:
+                #    message_handler()
+            #else:
+                #message you dont registred
+                #password_handler()
+            send_message('hello {} you not registed. please type your password look like "my_password=YOUR PASSWORD"'.format(cur_user), cur_chat) 
+            
+            print('here')
+                #create_new_user_handler(cur_user)
         time.sleep(0.5)
 
 

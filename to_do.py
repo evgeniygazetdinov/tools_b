@@ -44,6 +44,10 @@ def get_last_update_id(updates):
     return max(update_ids)
 
 
+
+
+
+
 def handle_updates(updates):
     for update in updates["result"]:
         chat = update["message"]["chat"]["id"]

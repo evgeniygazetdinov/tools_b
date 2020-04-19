@@ -1,1 +1,5 @@
 const.py
+db.sqlite
+*.pyc
+*.py.swp
+__pycache__
