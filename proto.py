@@ -5,11 +5,13 @@ import urllib
 from const import token as TOKEN
 from dbhelper import DBHelper
 from protect import do_some_protection
+from backend_methods import user_exist
+
+
 
 URL = "https://api.telegram.org/bot{}/".format(TOKEN)
 
 
-db = DBHelper()
 menu_items = ['login','help']
 login_items = ['my_uploads','change_password', 'instructions','end_sessions']
 def get_url(url):
@@ -54,7 +56,6 @@ def login_handler(updates):
         try:
             text = update["message"]["text"]
             
-            items = db.get_items(chat)
             if text =='/start':
                 #check_user_exist()
                 #if not exist create_user
@@ -77,7 +78,6 @@ def sucess_login_hanler(updates):
         try:
             text = update["message"]["text"]
             
-            items = db.get_items(chat)
             if text =='/start':
                 #check_user_exist()
                 #if not exist create_user
@@ -121,23 +121,39 @@ def main():
             #check here picture or message
             cur_user = updates['result'][0]['message']['chat']['username']
             cur_chat = updates['result'][0]["message"]["chat"]["id"]
-            cur_message = updates['result'][0]['message']['chat']['username']
-            #if cur_user:#user_exist(cur_user):
-            #    pass
-                #login_handler()
+            cur_message = updates['result'][0]['message']['text']
+            #check_user_sessions
+            if user_exist(cur_user):
+                print("HERE")
+                send_message('put your password ', cur_chat)
+                #message_handler()
+                #password = password_handler(cur_message)
+                #login_handler(cur_user,password)
+                #session.save_current_user(cur_user,)
                 #if login_handler:
-                #    message_handler()
-            #else:
-                #message you dont registred
-                #password_handler()
-            send_message('hello {} you not registed. please type your password look like "my_password=YOUR PASSWORD"'.format(cur_user), cur_chat) 
+                send_message('Choose ', cur_chat,login_items)
+                menu_handler(cur_message)
+                if menuhandler =='upload_pictures':
+                    upload_handler
+                if menuhandler == 'change_password':
+                    password = password_handler(cur_message)
+                    password_changer_handler(cur_user,cur_message)
+
+            else:
+                send_message('hello {} you not registed. please type your password look like "my_password=YOUR PASSWORD"'.format(cur_user), cur_chat) 
+                password = check_it_is_password(cur_message)
+                if password:
+                    success = create_user(cur_user,)
+                    if success:
+                        send_message('profile was created'.format(cur_user), cur_chat)
+                    else:
+                        send_message('some thing bad with server'.format(cur_user), cur_chat)
+
             
-            print('here')
                 #create_new_user_handler(cur_user)
         time.sleep(0.5)
 
 
 if __name__ == '__main__':
-    db.setup()
     do_some_protection()
     main()
