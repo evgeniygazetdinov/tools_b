@@ -1,7 +1,8 @@
 import requests
 import json
+from const import BACKEND_URL
 
-BACKEND_URL = 'https://dv24.website/'
+
 
 
 def user_exist(username):
