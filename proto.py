@@ -3,7 +3,6 @@ import requests
 import time
 import urllib
 from const import  URL
-from dbhelper import DBHelper
 from protect import do_some_protection
 from backend_methods import user_exist,create_user
 from base import check_it_is_password, send_message, get_url
@@ -114,11 +113,13 @@ def main():
             
             if user_exist(cur_user):
                 print("HERE")
-                send_message('put your password ', cur_chat)
-                message_handler(cur_message)
-                #password = password_handler(cur_message)
-                #login_handler(cur_user,password)
-                #session.save_current_user(cur_user,)
+                send_message('put your password look like this "mypassword=YOUR PASSWORD', cur_chat)
+                password = check_it_is_password(cur_message,cur_chat)
+                if do_login(cur_user,password):
+                    send_message('profile {} is authenticated.'.format(cur_user), cur_chat)
+                    send_message('Choose ', cur_chat,login_items)
+
+
                 #if login_handler:
                 #send_message('Choose ', cur_chat,login_items)
                 #menu_handler(cur_message)
@@ -139,8 +140,9 @@ def main():
                 password = check_it_is_password(cur_message,cur_chat)
                 if password:
                     success = create_user(cur_user,password)
+                    print(success)
                     if success:
-                        send_message('profile was created please login'.format(cur_user), cur_chat)
+                        send_message('profile {} was created please login'.format(cur_user), cur_chat)
                     else:
                         send_message('some thing bad with server type exit for confirm'.format(cur_user), cur_chat)
 
