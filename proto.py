@@ -10,8 +10,11 @@ from base import check_it_is_password, send_message, get_url, find_user_message_
 
 
 
-menu_items = ['login','help']
 login_items = ['my_uploads','change_password', 'instructions','end_sessions']
+menu_items = ['create_profile','login','help']
+password_item = ['put password']
+
+
 
 
 
@@ -99,7 +102,6 @@ def get_last_chat_id_and_text(updates):
     return (text, chat_id)
 
 
-
 def main():
     last_update_id = None
     while True:
@@ -108,46 +110,57 @@ def main():
             last_update_id = get_last_update_id(updates) + 1 
             #check here picture or message
             cur_user, cur_chat, cur_message = find_user_message_chat(updates['result'])
-            if user_exist(cur_user):
-                print("HERE")
-                send_message('put your password look like this "mypassword=YOUR PASSWORD', cur_chat)
-                password = check_it_is_password(cur_message,cur_chat)
-                if do_login(cur_user,password,cur_chat):
-                    keyboard = build_keyboard(login_items)
-                    send_message('Choose your variant', cur_chat, keyboard)
-                    print("HERE")
-
-
-
-                #if login_handler:
-                #send_message('Choose ', cur_chat,login_items)
-                #menu_handler(cur_message)
-                #if menuhandler =='upload_pictures':
-                #    upload_handler
-                #if menuhandler == 'change_password':
-                #    password = password_handler(cur_message)
-                #    password_changer_handler(cur_user,cur_message)
-
+            if cur_message == '/start':
+                send_message("hello this photohosting bot please create profile or login",cur_chat)
+                keyboard = build_keyboard(menu_items)
+                send_message('Choose your variant', cur_chat, keyboard)
             else:
-                send_message("""
-                hello {} you not registed. 
-                please type your password 
-                look like "my_password=YOUR PASSWORD.
-                your password must be not too common. 
-                contain more 8 char""".format(cur_user), cur_chat)
-                #message_handler(cur_message)
-                password = check_it_is_password(cur_message,cur_chat)
-                if password:
-                    success = create_user(cur_user,password)
-                    print(success)
-                    if success:
-                        send_message('profile {} was created please login'.format(cur_user), cur_chat)
+                if cur_message =='login':
+                    exist = user_exist(cur_user)
+                    if exist:
+                        send_message('PUT YOUR PASSWORD', cur_chat)
+                        send_message('mypassword=YOUR PASSWORD MUST BE HERE', cur_chat)
+                        if re.match(r'[mypassword=A-Za-z0-9@#$%^&+=]{8,}', cur_message):
+                            password = div_password(cur_message)
+                            login = do_login(cur_user,password,cur_chat)
+                            if login: 
+                                keyboard = build_keyboard(login_items)
+                                send_message('Choose your variant', cur_chat, keyboard)
+                        else:
+                            send_message('some thing bad with your password try again', cur_chat)
+                            keyboard = build_keyboard(menu_items)
+                            send_message('Choose your variant', cur_chat, keyboard)
                     else:
-                        send_message('some thing bad with server type exit for confirm'.format(cur_user), cur_chat)
-
-            
+                        send_message('your user exist to our database choose create profile for create', cur_chat)
+                        keyboard = build_keyboard(menu_items)
+                        send_message('Choose your variant', cur_chat, keyboard)
+                if cur_message == 'create_profile':
+                    send_message('YOUR telegram username it is login', cur_chat)
+                    send_message('PUT YOUR PASSWORD', cur_chat)
+                    send_message('mypassword=YOUR PASSWORD MUST BE HERE', cur_chat)
+    
+                if cur_message == 'help':
+                    send_message('help MUST BE HERE', cur_chat)
+                    keyboard = build_keyboard(menu_items)
+                    send_message('Choose your variant', cur_chat, keyboard)
+                else:
+                    if re.match(r'[mypassword=A-Za-z0-9@#$%^&+=]{8,}', cur_message):
+                        password = div_password(cur_message)
+                        print('true password')
+                        success = create_user(cur_user,password)
+                        if success:
+                            send_message('profile was created please try login', cur_chat)
+                            keyboard = build_keyboard(menu_items)
+                            send_message('Choose your variant', cur_chat, keyboard)
+                        else:
+                            send_message('some thing bad with server type exit for confirm'.format(cur_user), cur_chat)
+                    else:
+                        send_message('some thing bad with your password try again', cur_chat)
+                        keyboard = build_keyboard(menu_items)
+                        send_message('Choose your variant', cur_chat, keyboard)
                 #create_new_user_handler(cur_user)
         time.sleep(0.5)
+
 
 
 if __name__ == '__main__':

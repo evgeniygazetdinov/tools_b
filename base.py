@@ -25,9 +25,8 @@ def send_message(text, chat_id, reply_markup=None):
 
 
 def check_it_is_password(password,cur_chat):
-    clean_password = div_password(password)
-    if re.match(r'[mypassword=A-Za-z0-9@#$%^&+=]{8,}', clean_password):
-        return clean_password
+    if re.match(r'mypassword=A-Za-z0-9@#$%^&+=]{8,}', password):
+        return div_password(password)
     else:
         send_message('try another password',cur_chat)
         return False
