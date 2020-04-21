@@ -16,7 +16,6 @@ def user_exist(username):
     print(response.content)
     print(type(response.status_code))
     if response.status_code == 200:
-        print('exists')
         return True
     else:
         return False

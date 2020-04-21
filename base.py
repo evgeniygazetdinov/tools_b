@@ -31,3 +31,20 @@ def check_it_is_password(password,cur_chat):
     else:
         send_message('try another password',cur_chat)
         return False
+
+
+def find_user_message_chat(results):
+    cur_result = results[0]
+    if 'message' in cur_result:
+        cur_user = cur_result['message']['chat']['username']
+        cur_chat = cur_result['message']["chat"]["id"]
+        if 'sticker' in cur_result['message']:
+            cur_message = 'sticker'
+            send_message('nice sticker',cur_chat)
+        else:    
+            cur_message = cur_result['message']['text']
+    if 'edited_message' in cur_result:
+        cur_user = cur_result['edited_message']['chat']['username']
+        cur_chat = cur_result['edited_message']["chat"]["id"]
+        cur_message = cur_result['edited_message']['text']
+    return cur_user, cur_chat, cur_message

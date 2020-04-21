@@ -5,7 +5,7 @@ import urllib
 from const import  URL
 from protect import do_some_protection
 from backend_methods import user_exist,create_user
-from base import check_it_is_password, send_message, get_url
+from base import check_it_is_password, send_message, get_url, find_user_message_chat
 
 
 
@@ -105,12 +105,8 @@ def main():
     while True:
         updates = get_updates(last_update_id)
         if len(updates["result"]) != 0:
-            last_update_id = get_last_update_id(updates) + 1
+            last_update_id = get_last_update_id(updates) + 1 
             #check here picture or message
-            cur_user = updates['result'][0]['message']['chat']['username']
-            cur_chat = updates['result'][0]["message"]["chat"]["id"]
-            cur_message = updates['result'][0]['message']['text']
-            
             if user_exist(cur_user):
                 print("HERE")
                 send_message('put your password look like this "mypassword=YOUR PASSWORD', cur_chat)

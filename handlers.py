@@ -16,6 +16,5 @@ def password_handler(username):
     pass
 
 def message_handler(message,need_context, aswer,cur_chat):
-    pass
 #    send_message(message,chat)
-    
+    pass
