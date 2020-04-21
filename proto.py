@@ -6,7 +6,7 @@ from const import  URL
 from protect import do_some_protection
 from backend_methods import user_exist,create_user
 from base import check_it_is_password, send_message, get_url, find_user_message_chat
-
+from sessions import Session
 
 
 
@@ -106,44 +106,44 @@ def main():
         updates = get_updates(last_update_id)
         if len(updates["result"]) != 0:
             last_update_id = get_last_update_id(updates) + 1 
-            #check here picture or message
             cur_user, cur_chat, cur_message = find_user_message_chat(updates['result'])
-            if user_exist(cur_user):
-                print("HERE")
-                send_message('put your password look like this "mypassword=YOUR PASSWORD', cur_chat)
-                password = check_it_is_password(cur_message,cur_chat)
-                if do_login(cur_user,password,cur_chat):
-                    keyboard = build_keyboard(login_items)
-                    send_message('Choose your variant', cur_chat, keyboard)
-                    print("HERE")
-
-
-
-                #if login_handler:
-                #send_message('Choose ', cur_chat,login_items)
-                #menu_handler(cur_message)
-                #if menuhandler =='upload_pictures':
-                #    upload_handler
-                #if menuhandler == 'change_password':
-                #    password = password_handler(cur_message)
-                #    password_changer_handler(cur_user,cur_message)
-
-            else:
-                send_message("""
-                hello {} you not registed. 
-                please type your password 
-                look like "my_password=YOUR PASSWORD.
-                your password must be not too common. 
-                contain more 8 char""".format(cur_user), cur_chat)
-                #message_handler(cur_message)
-                password = check_it_is_password(cur_message,cur_chat)
-                if password:
-                    success = create_user(cur_user,password)
-                    print(success)
-                    if success:
-                        send_message('profile {} was created please login'.format(cur_user), cur_chat)
+            #access user_session.user_info
+            user_session = Session(cur_user)
+            if cur_message == '/start':
+                send_message("hello this photohosting bot please create profile or login",cur_chat)
+                user_session.update_state_user('greeting',True)
+                if not user_session.user_info['state']['exists']:
+                    exist = user_exist(cur_user)
+                    if exist:
+                        user_session.update_state_user('exists',True)
                     else:
-                        send_message('some thing bad with server type exit for confirm'.format(cur_user), cur_chat)
+                        send_message('your user exist to our database', cur_chat)
+                        send_message('put your password look like this mypassword=YOUR PASSWORD', cur_chat)
+                        password = check_it_is_password(cur_message,cur_chat)
+                        if password:
+                            if not user_session.user_info['state']['login']:
+                                login = do_login(cur_user,password,cur_chat)
+                                if login: 
+                                    user_session.update_state_user('login',True,password)
+                                    keyboard = build_keyboard(login_items)
+                                    send_message('Choose your variant', cur_chat, keyboard)
+                else:
+                    send_message("""
+                    hello {} you not registed. 
+                    please type your password 
+                    look like "my_password=YOUR PASSWORD.
+                    your password must be not too common. 
+                    contain more 8 char""".format(cur_user), cur_chat)
+                    #message_handler(cur_message)
+                    password = check_it_is_password(cur_message,cur_chat)
+                    if password:
+                        success = create_user(cur_user,password)
+                        print(success)
+                        if success:
+                            user_session.user_info['state']['registred'] = True
+                            send_message('profile {} was created please login'.format(cur_user), cur_chat)
+                        else:
+                            send_message('some thing bad with server type exit for confirm'.format(cur_user), cur_chat)
 
             
                 #create_new_user_handler(cur_user)

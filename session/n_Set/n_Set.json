@@ -1,0 +1,11 @@
+{
+    "username": "n_Set",
+    "uploaded_pictures": [],
+    "state": {
+        "login": false,
+        "registred": false,
+        "exists": false,
+        "greeting": true
+    },
+    "password": false
+}

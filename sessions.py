@@ -7,11 +7,26 @@ import shutil
 
 class Session(object):
 
-    def __init__(self,username,password):
+    def __init__(self,username,password=False):
         self.username = username
         self.password = password
-        self.user_info = {'username':username,'password':password,'uploaded_pictures':[]}
-        self.user_folder = self.create_user_folder()
+        #check_folder
+        #exists load 
+        #else create
+        if os.path.exists(os.getcwd()+'/session/'+self.username):
+            self.user_folder = os.getcwd()+'/session/'+self.username
+            self.user_info = self.get_session_details()
+            
+        else:
+            self.user_info = {'username':username,'password':password,'uploaded_pictures':[],
+            'state': {'login': False, 'greeting': False, 'exists': False, 'registred': False,}}
+            self.user_folder = self.create_user_folder()
+            self.save_user_info()
+
+    def update_state_user(self,state,value,password=False):
+        self.user_info['state'][state] = value
+        if  self.user_info['state']['login']:
+            self.password = password
         self.save_user_info()
 
     def save_user_info(self):
@@ -19,7 +34,9 @@ class Session(object):
             json.dump(self.user_info, f, ensure_ascii=False, indent=4)
 
     def get_session_details(self):
-        pass
+        with open(self.user_folder +'/{}.json'.format(self.username)) as json_file:
+            data = json.load(json_file)
+            return data
 
     def create_user_folder(self):
         os.makedirs(os.getcwd()+'/session/'+self.username,exist_ok = True)
@@ -28,3 +45,7 @@ class Session(object):
 
     def clean_session(self):
         shutil.rmtree(self.user_folder, ignore_errors=True)
+
+
+
+
