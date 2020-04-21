@@ -107,6 +107,7 @@ def main():
         if len(updates["result"]) != 0:
             last_update_id = get_last_update_id(updates) + 1 
             #check here picture or message
+            cur_user, cur_chat, cur_message = find_user_message_chat(updates['result'])
             if user_exist(cur_user):
                 print("HERE")
                 send_message('put your password look like this "mypassword=YOUR PASSWORD', cur_chat)

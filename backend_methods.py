@@ -14,7 +14,7 @@ def user_exist(username):
     url = BACKEND_URL+'user/exists/'+username+'/'
     response = requests.get(url)
     print(response.content)
-    print(type(response.status_code))
+    print(response.status_code)
     if response.status_code == 200:
         return True
     else:
@@ -39,7 +39,7 @@ def do_login(username,password):
     url = BACKEND_URL+'user/check_current/'
     with requests.session() as s:
         s.auth = (username, password)
-        r = s.post(url)
+        r = s.get(url)
         print(r.status_code)
         print(r.content)
         if r.status_code == 201 or r.status_code ==200:
