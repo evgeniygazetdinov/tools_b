@@ -112,9 +112,11 @@ def main():
                 print("HERE")
                 send_message('put your password look like this "mypassword=YOUR PASSWORD', cur_chat)
                 password = check_it_is_password(cur_message,cur_chat)
-                if do_login(cur_user,password):
-                    send_message('profile {} is authenticated.'.format(cur_user), cur_chat)
-                    send_message('Choose ', cur_chat,login_items)
+                if do_login(cur_user,password,cur_chat):
+                    keyboard = build_keyboard(login_items)
+                    send_message('Choose your variant', cur_chat, keyboard)
+                    print("HERE")
+
 
 
                 #if login_handler:

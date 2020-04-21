@@ -35,7 +35,8 @@ def create_user(username,password):
 
 
 
-def do_login(username,password):
+
+def do_login(username,password,cur_chat,login_items):
     url = BACKEND_URL+'user/check_current/'
     with requests.session() as s:
         s.auth = (username, password)
@@ -43,9 +44,11 @@ def do_login(username,password):
         print(r.status_code)
         print(r.content)
         if r.status_code == 201 or r.status_code ==200:
+            send_message('you authenticated',cur_chat)
             return True
         else:
             return False
+
 
 
 def upload_photo(photo):
