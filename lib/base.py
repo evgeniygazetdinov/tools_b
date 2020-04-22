@@ -94,7 +94,10 @@ def find_user_message_chat(results):
             cur_message = get_link_for_update_photo(token,file_id_link)
             cur_user = cur_result['message']['chat']['username']
             cur_chat = cur_result['message']["chat"]["id"]
-            print(cur_message) 
+            print(cur_message)
+        else:
+            cur_message = cur_result['message']['text']
+
     if 'edited_message' in cur_result:
         cur_user = cur_result['edited_message']['chat']['username']
         cur_chat = cur_result['edited_message']["chat"]["id"]
