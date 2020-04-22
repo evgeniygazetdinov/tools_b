@@ -2,12 +2,14 @@ import json
 import requests
 import time
 import urllib
-from const import  URL
-from protect import do_some_protection
-from backend_methods import user_exist,create_user
-from base import check_it_is_password, send_message, get_url, find_user_message_chat
-
-
+import re
+from lib.sessions import Session
+from lib.const import  URL
+from lib.protect import do_some_protection
+from lib.backend_methods import user_exist,create_user
+from lib.base import  (send_message, get_url, find_user_message_chat,
+                  div_password, build_keyboard, get_json_from_url,get_last_update_id,
+                  get_updates, get_updates, get_last_chat_id_and_text)
 
 
 login_items = ['my_uploads','change_password', 'instructions','end_sessions']
@@ -16,153 +18,75 @@ password_item = ['put password']
 
 
 
-
-
-def get_json_from_url(url):
-    content = get_url(url)
-    js = json.loads(content)
-    return js
-
-
-def get_updates(offset=None):
-    url = URL + "getUpdates"
-    if offset:
-        url += "?offset={}".format(offset)
-    js = get_json_from_url(url)
-    return js
-
-
-def build_keyboard(items):
-    keyboard = [[item]for item in items]
-    reply_markup = {'keyboard':keyboard, 'one_time_keyboard':True}
-    return json.dumps(reply_markup)
-
-
-def get_last_update_id(updates):
-    update_ids = []
-    for update in updates["result"]:
-        update_ids.append(int(update["update_id"]))
-    return max(update_ids)
-
-
-
-
-def login_handler(updates):
-    for update in updates["result"]:
-        chat = update["message"]["chat"]["id"]
-        
-        try:
-            text = update["message"]["text"]
-            
-            if text =='/start':
-                #check_user_exist()
-                #if not exist create_user
-                #exist this menu
-                keyboard = build_keyboard(menu_items)
-                send_message('Choose your variant', chat, keyboard)
-            if text == 'login':
-
-               keyboard = build_keyboard(login_items)
-               send_message('Choose your variant', chat, keyboard)
-           
-        except Exception  as e:
-            print(e)
-            send_message('this not look a text',chat)
-
-def sucess_login_hanler(updates):
-    for update in updates["result"]:
-        chat = update["message"]["chat"]["id"]
-        
-        try:
-            text = update["message"]["text"]
-            
-            if text =='/start':
-                #check_user_exist()
-                #if not exist create_user
-                #exist this menu
-                keyboard = build_keyboard(menu_items)
-                send_message('Choose your variant', chat, keyboard)
-            if text == 'login':
-
-               keyboard = build_keyboard(login_items)
-               send_message('Choose your variant', chat, keyboard)
-           
-        except Exception  as e:
-            print(e)
-            send_message('this not look a text',chat)
-
-
-
-
-def get_last_chat_id_and_text(updates):
-    num_updates = len(updates["result"])
-    last_update = num_updates - 1
-    text = updates["result"][last_update]["message"]["text"]
-    chat_id = updates["result"][last_update]["message"]["chat"]["id"]
-    return (text, chat_id)
-
-
-def main():
+def main_flow():
     last_update_id = None
     while True:
         updates = get_updates(last_update_id)
         if len(updates["result"]) != 0:
+            #init section
             last_update_id = get_last_update_id(updates) + 1 
-            #check here picture or message
             cur_user, cur_chat, cur_message = find_user_message_chat(updates['result'])
+            login_keyboard = build_keyboard(login_items)
+            menu_keyboard = build_keyboard(menu_items)
+            user_session = Session(cur_user)
             if cur_message == '/start':
                 send_message("hello this photohosting bot please create profile or login",cur_chat)
-                keyboard = build_keyboard(menu_items)
-                send_message('Choose your variant', cur_chat, keyboard)
-            else:
-                if cur_message =='login':
-                    exist = user_exist(cur_user)
-                    if exist:
-                        send_message('PUT YOUR PASSWORD', cur_chat)
-                        send_message('mypassword=YOUR PASSWORD MUST BE HERE', cur_chat)
-                        if re.match(r'[mypassword=A-Za-z0-9@#$%^&+=]{8,}', cur_message):
-                            password = div_password(cur_message)
-                            login = do_login(cur_user,password,cur_chat)
-                            if login: 
-                                keyboard = build_keyboard(login_items)
-                                send_message('Choose your variant', cur_chat, keyboard)
-                        else:
-                            send_message('some thing bad with your password try again', cur_chat)
-                            keyboard = build_keyboard(menu_items)
-                            send_message('Choose your variant', cur_chat, keyboard)
-                    else:
-                        send_message('your user exist to our database choose create profile for create', cur_chat)
-                        keyboard = build_keyboard(menu_items)
-                        send_message('Choose your variant', cur_chat, keyboard)
-                if cur_message == 'create_profile':
+                send_message('Choose your variant', cur_chat, menu_keyboard)
+
+
+            if cur_message =='login':
+                exist = user_exist(cur_user)
+                if exist:
+                    send_message('PUT YOUR PASSWORD', cur_chat)
+                    send_message('mypassword=YOUR PASSWORD MUST BE HERE', cur_chat)
+                    user_session.update_state_user('login','in_process')
+                else:
+                    send_message('Your user not created in system -> choose create profile', cur_chat)
+                    send_message('Choose your variant', cur_chat, menu_keyboard)
+                    
+            #add session contidion        
+            if re.match(r'[mypassword=A-Za-z0-9@#$%^&+=]{8,}', cur_message) and  user_session.user_info['state']['login'] == 'in_process':
+                password = div_password(cur_message)
+                login = do_login(cur_user,password,cur_chat)
+                if login: 
+                    send_message('Choose your variant', cur_chat, login_keyboard)
+                    user_session.update_state_user('login',True,password)
+                else:
+                    send_message('something bad with your password try again', cur_chat)
+                    send_message('Choose your variant', cur_chat, menu_keyboard)
+
+
+            if cur_message == 'create_profile':
+                exist = user_exist(cur_user)
+                if exist:
+                    send_message('your user already exists .try to login', cur_chat)
+                    send_message('Choose your variant', cur_chat, menu_keyboard)
+                
+                else:
                     send_message('YOUR telegram username it is login', cur_chat)
                     send_message('PUT YOUR PASSWORD', cur_chat)
                     send_message('mypassword=YOUR PASSWORD MUST BE HERE', cur_chat)
-    
-                if cur_message == 'help':
-                    send_message('help MUST BE HERE', cur_chat)
-                    keyboard = build_keyboard(menu_items)
-                    send_message('Choose your variant', cur_chat, keyboard)
+                    user_session.update_state_user('created','in_process')
+                    
+             #add session in condition   
+            if re.match(r'[mypassword=A-Za-z0-9@#$%^&+=]{8,}', cur_message) and user_session.user_info['state']['created'] == 'in_process':
+                password = div_password(cur_message)
+                success = create_user(cur_user,password)
+                if success:
+                    send_message('profile was created please try login', cur_chat)
+                    send_message('Choose your variant', cur_chat, menu_keyboard)
+                    user_session.update_state_user('created',True,password)
                 else:
-                    if re.match(r'[mypassword=A-Za-z0-9@#$%^&+=]{8,}', cur_message):
-                        password = div_password(cur_message)
-                        print('true password')
-                        success = create_user(cur_user,password)
-                        if success:
-                            send_message('profile was created please try login', cur_chat)
-                            keyboard = build_keyboard(menu_items)
-                            send_message('Choose your variant', cur_chat, keyboard)
-                        else:
-                            send_message('some thing bad with server type exit for confirm'.format(cur_user), cur_chat)
-                    else:
-                        send_message('some thing bad with your password try again', cur_chat)
-                        keyboard = build_keyboard(menu_items)
-                        send_message('Choose your variant', cur_chat, keyboard)
-                #create_new_user_handler(cur_user)
+                    send_message('something bad with server.Try again later'.format(cur_user), cur_chat)
+                    send_message('Choose your variant', cur_chat, menu_keyboard)
+
+            if cur_message == 'help':
+                send_message('help MUST BE HERE', cur_chat)
+                send_message('Choose your variant', cur_chat, menu_keyboard)
         time.sleep(0.5)
 
 
 
 if __name__ == '__main__':
     do_some_protection()
-    main()
+    main_flow()

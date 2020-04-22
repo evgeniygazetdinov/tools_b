@@ -1,19 +1,18 @@
 import requests
 import json
-from const import BACKEND_URL, URL
+from lib.const import BACKEND_URL, URL
 
 from urllib import request, parse
 
 
 
 
-
+#describe methods for work with  api on dv24.website
 
 
 def user_exist(username):
     url = BACKEND_URL+'user/exists/'+username+'/'
     response = requests.get(url)
-    print(response.content)
     print(response.status_code)
     if response.status_code == 200:
         return True
@@ -25,9 +24,8 @@ def create_user(username,password):
     url = BACKEND_URL+'user/create/'
     body = {'username': username,'password': password}
     response =  requests.post(url,data=body)
-    print(response.content)
     print(response.status_code)
-    if response.status_code == 201:
+    if response.status_code == 201 or response.status_code == 200:
         return True
     else:
         return False
