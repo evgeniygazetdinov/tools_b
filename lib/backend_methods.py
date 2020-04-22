@@ -1,7 +1,7 @@
 import requests
 import json
 from lib.const import BACKEND_URL, URL
-
+from lib.base import send_message
 from urllib import request, parse
 
 
@@ -34,7 +34,7 @@ def create_user(username,password):
 
 
 
-def do_login(username,password,cur_chat,login_items):
+def do_login(username,password,cur_chat):
     url = BACKEND_URL+'user/check_current/'
     with requests.session() as s:
         s.auth = (username, password)
