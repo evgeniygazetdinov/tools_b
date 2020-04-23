@@ -16,16 +16,16 @@ class Session(object):
         if os.path.exists(os.getcwd()+'/session/'+self.username):
             self.user_folder = os.getcwd()+'/session/'+self.username
             self.user_info = self.get_session_details()
-            
+
         else:
             self.user_info = {'username':username,'password':password,
-            'state': {'login': False, 'created': False,}}
+            'state': {'login': False, 'created': False,'upload': False}}
             self.user_folder = self.create_user_folder()
             self.save_user_info()
 
     def update_state_user(self,state,value,password=False):
         self.user_info['state'][state] = value
-        if  self.user_info['state']['login']:
+        if self.user_info['state']['login']:
             self.password = password
         self.save_user_info()
 

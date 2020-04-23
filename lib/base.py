@@ -29,7 +29,6 @@ def get_link_for_update_photo(token,file_id_link):
     #get file path
     #insert file path into url
     #return link for downloadand  user_session.user_info['state']['login'] == 'in_proces
-   
     url = clean_url(file_id_link)
     file_id = requests.get(url)
     data = json.loads(file_id.text)
@@ -81,19 +80,13 @@ def find_user_message_chat(results):
             send_message('nice sticker',cur_chat)
             menu_keyboard = build_keyboard(menu_items)
             send_message('choose variant',cur_chat,menu_keyboard)
-        if 'photo' in cur_result['message']:
-            
-            cur_user = cur_result['message']['chat']['username']
-            cur_chat = cur_result['message']["chat"]["id"]
+        elif 'photo' in cur_result['message']:
             file_id_link = 'photo='+'https://api.telegram.org/bot{}/getFile?file_id={}'.format(token, cur_result['message']['photo'][-1]['file_id'])
             cur_message = get_link_for_update_photo(token,file_id_link)
             print(cur_message)
-
-        if 'document' in cur_result['message']:
+        elif 'document' in cur_result['message']:
             file_id_link = 'document='+'https://api.telegram.org/bot{}/getFile?file_id={}'.format(token, cur_result['message']['document']['thumb']['file_id'])
             cur_message = get_link_for_update_photo(token,file_id_link)
-            cur_user = cur_result['message']['chat']['username']
-            cur_chat = cur_result['message']["chat"]["id"]
             print(cur_message)
         else:
             cur_message = cur_result['message']['text']
@@ -102,7 +95,6 @@ def find_user_message_chat(results):
         cur_user = cur_result['edited_message']['chat']['username']
         cur_chat = cur_result['edited_message']["chat"]["id"]
         cur_message = cur_result['edited_message']['text']
-    
     return cur_user, cur_chat, cur_message
 
 
