@@ -3,7 +3,7 @@ import json
 from lib.const import BACKEND_URL, URL
 from lib.base import send_message
 from urllib import request, parse
-
+import re
 
 
 
@@ -49,17 +49,16 @@ def do_login(username,password,cur_chat):
 
 
 
-def upload_photo(photo):
-    session = requests.Session()
 
-    files = {'image': open('1.jpeg', 'rb')}
-    with open(os.getcwd()+'/1.jpeg','rb') as img:
+def upload_photo_on_server(filename,username,password):
+    with open(os.getcwd()+'/'+filename,'rb') as img:
         #name_img= os.path.basename(path_img)
-        files= {'image': ('1.jpeg',img,'multipart/form-data') }
+        files= {'image': (filename,img,'multipart/form-data') }
         with requests.Session() as s:
-            s.auth = ('vitor2', '2xaxaxa2')
-            r = s.post('https://dv24.website/photo/upload/',files=files)
+            s.auth = (username, password)
+            r = s.post(BACKEND_URL+'photo/upload/',files=files)
             print(r.status_code)
+            print(r.content)
 
 
 def get_my_uploaded_photos():
@@ -73,3 +72,22 @@ def get_my_uploaded_photos():
             return True
         else:
             return False
+
+
+
+def extract_name_from_content_dis(cd):
+    if not cd:
+           return 'None'
+    fname = re.findall('filename=(.+)', cd)
+    if len(fname) == 0:
+        return 'None.jpg'
+    return fname[0]
+
+
+def upload_photo_from_telegram_and_get_path(url):
+    r = requests.get(url, allow_redirects=True)
+    filename = extract_name_from_content_dis(r.headers.get('content-disposition'))
+    open(filename, 'wb').write(r.content)
+    return filename, os.getcwd()+'/'+filename
+
+

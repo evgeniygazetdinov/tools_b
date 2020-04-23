@@ -6,6 +6,38 @@ import json
 
 
 menu_items = ['create_profile','login','help']
+get_file = 'https://api.telegram.org/bot/getFile?file_id='
+
+
+def clean_url(cur_message):
+    link = ''
+    if re.match(r'photo=', cur_message):
+        link = cur_message.split('photo=')
+    if re.match(r'document=', cur_message):
+        link = cur_message.split('document=')
+    if re.match(r'download_link=', cur_message):
+        link = cur_message.split('download_link=')
+    print(link)
+    return link[-1]
+
+
+
+def get_link_for_update_photo(token,file_id_link):
+    #check_link with re photo or documnet
+    #clean
+    #get request by this
+    #get file path
+    #insert file path into url
+    #return link for downloadand  user_session.user_info['state']['login'] == 'in_proces
+
+    url = clean_url(file_id_link)
+    file_id = requests.get(url)
+    data = json.loads(file_id.text)
+    file_path = data['result']['file_path']
+    upload_path = 'download_link=https://api.telegram.org/file/bot{}/{}'.format(token, file_path)
+    return upload_path
+
+
 
 def build_keyboard(items):
     keyboard = [[item]for item in items]
@@ -49,12 +81,22 @@ def find_user_message_chat(results):
             send_message('nice sticker',cur_chat)
             menu_keyboard = build_keyboard(menu_items)
             send_message('choose variant',cur_chat,menu_keyboard)
-        else:    
+        elif 'photo' in cur_result['message']:
+            file_id_link = 'photo='+'https://api.telegram.org/bot{}/getFile?file_id={}'.format(token, cur_result['message']['photo'][-1]['file_id'])
+            cur_message = get_link_for_update_photo(token,file_id_link)
+            print(cur_message)
+
+        elif 'document' in cur_result['message']:
+            file_id_link = 'document='+'https://api.telegram.org/bot{}/getFile?file_id={}'.format(token, cur_result['message']['document']['thumb']['file_id'])
+            cur_message = get_link_for_update_photo(token,file_id_link)
+            print(cur_message)
+        else:
             cur_message = cur_result['message']['text']
     if 'edited_message' in cur_result:
         cur_user = cur_result['edited_message']['chat']['username']
         cur_chat = cur_result['edited_message']["chat"]["id"]
         cur_message = cur_result['edited_message']['text']
+
     return cur_user, cur_chat, cur_message
 
 
