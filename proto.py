@@ -10,7 +10,7 @@ from lib.protect import do_some_protection
 from lib.backend_methods import user_exist,create_user, upload_photo_from_telegram_and_get_path,do_login, upload_photo_on_server
 from lib.base import  (send_message, get_url, find_user_message_chat,
                   div_password, build_keyboard, get_json_from_url,get_last_update_id,
-                  get_updates, get_updates, get_last_chat_id_and_text)
+                  get_updates, get_updates, get_last_chat_id_and_text,clean_url)
 
 
 login_items = ['my_uploads', 'upload_image', 'change_password', 'instructions','end_sessions']
@@ -42,9 +42,8 @@ def main_flow():
                     send_message('mypassword=YOUR PASSWORD MUST BE HERE', cur_chat)
                     user_session.update_state_user('login','in_process')
                 else:
-                    send_message('Your user not created in system -> choose create profile', cur_chat)
-                    send_message('Choose your variant', cur_chat, menu_keyboard)    
-
+                    send_message('Your user not created in system -> choose create profile', cur_chat)   
+                    send_message('Choose your variant', cur_chat, menu_keyboard)
             if re.match(r'[mypassword=A-Za-z0-9@#$%^&+=]{8,}', cur_message) and  user_session.user_info['state']['login'] == 'in_process':
                 password = div_password(cur_message)
                 login = do_login(cur_user,password,cur_chat)
@@ -74,6 +73,28 @@ def main_flow():
                 os.remove(path_file)
                 send_message('file uploaded', cur_chat)
                 user_session.update_state_user('login',False)
+
+
+
+
+            if cur_message =='end_session' and  user_session.user_info['state']['login'] == 'in_process':
+                user_session.clean_session()
+                send_message('Session was cleaned ', cur_chat)
+                send_message('good_bye', cur_chat)
+                send_message('Choose your variant', cur_chat, menu_keyboard)
+
+            if cur_message =='upload_image':
+                send_message('Drag your image', cur_chat)
+
+
+            if re.match(r'download_link=', cur_message) and  user_session.user_info['state']['upload'] == 'in_process':
+                url = clean_url(cur_message)
+                filename,path_file = upload_photo_from_telegram_and_get_path(url)
+                upload_photo_server(filename,cur_user,user_session.user_info['password'])
+                os.remove(filename)
+                send_message('file uploaded', cur_chat)
+
+
 
 
 
