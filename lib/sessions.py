@@ -24,9 +24,12 @@ class Session(object):
             self.save_user_info()
 
     def update_state_user(self,state,value,password=False):
+        if password == False:
+           self.user_info['password'] = self.password
         self.user_info['state'][state] = value
-        if self.user_info['state']['login']:
-            self.password = password
+        if  self.user_info['state']['login']:
+            self.user_info['password'] = password
+
         self.save_user_info()
 
     def save_user_info(self):

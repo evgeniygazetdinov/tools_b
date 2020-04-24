@@ -95,6 +95,7 @@ def find_user_message_chat(results):
         cur_user = cur_result['edited_message']['chat']['username']
         cur_chat = cur_result['edited_message']["chat"]["id"]
         cur_message = cur_result['edited_message']['text']
+
     return cur_user, cur_chat, cur_message
 
 

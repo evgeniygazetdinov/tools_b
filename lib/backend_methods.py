@@ -3,12 +3,11 @@ import json
 from lib.const import BACKEND_URL, URL
 from lib.base import send_message
 from urllib import request, parse
+import re
 import os
 
 
-
 #describe methods for work with  api on dv24.website
-
 
 def user_exist(username):
     url = BACKEND_URL+'user/exists/'+username+'/'
@@ -51,7 +50,7 @@ def upload_photo_on_server(filename,username,password):
         files= {'image': (filename,img,'multipart/form-data') }
         with requests.Session() as s:
             s.auth = (username, password)
-
+            r = s.post(BACKEND_URL+'photo/upload/',files=files)
             print(r.status_code)
             print(r.content)
 
