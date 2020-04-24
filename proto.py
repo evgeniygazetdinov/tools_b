@@ -33,7 +33,7 @@ def main_flow():
             if cur_message == '/start':
                 send_message("hello this photohosting bot please create profile or login",cur_chat)
                 send_message('Choose your variant', cur_chat, menu_keyboard)
-
+            #check_auth()
 
             if cur_message =='login':
                 exist = user_exist(cur_user)
