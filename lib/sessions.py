@@ -29,6 +29,7 @@ class Session(object):
         self.user_info['state'][state] = value
         if  self.user_info['state']['login']:
             self.user_info['password'] = password
+
         self.save_user_info()
 
     def save_user_info(self):
