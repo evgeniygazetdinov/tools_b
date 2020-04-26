@@ -7,8 +7,8 @@ import os
 import re
 
 
-#describe methods for work with  api on dv24.website
 
+#describe methods for work with  api on dv24.website
 
 def user_exist(username):
     url = BACKEND_URL+'user/exists/'+username+'/'
@@ -32,9 +32,8 @@ def create_user(username,password):
 
 
 
-
-
 def do_login(username,password,cur_chat,show_user_content=False):
+
     url = BACKEND_URL+'user/check_current/'
     with requests.session() as s:
         s.auth = (username, password)
@@ -50,8 +49,6 @@ def do_login(username,password,cur_chat,show_user_content=False):
             return False
 
 
-
-
 def upload_photo_on_server(filename,username,password):
     with open(os.getcwd()+'/'+filename,'rb') as img:
         #name_img= os.path.basename(path_img)
@@ -63,6 +60,7 @@ def upload_photo_on_server(filename,username,password):
                 return True
             else:
                 return False
+
 
 
 def get_my_uploaded_photos():
@@ -92,4 +90,5 @@ def upload_photo_from_telegram_and_get_path(url):
     filename = extract_name_from_content_dis(r.headers.get('content-disposition'))
     open(filename, 'wb').write(r.content)
     return filename, os.getcwd()+'/'+filename
+
 
