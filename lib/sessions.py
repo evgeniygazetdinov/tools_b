@@ -24,12 +24,11 @@ class Session(object):
             self.save_user_info()
 
     def update_state_user(self,state,value,password=False):
-        if password == False:
-           self.user_info['password'] = self.password
         self.user_info['state'][state] = value
-        if  self.user_info['state']['login']:
+        if password:
             self.user_info['password'] = password
         self.save_user_info()
+        print(self.user_info)
 
     def save_user_info(self):
         with open(self.user_folder +'/{}.json'.format(self.username), 'w', encoding='utf-8') as f:
@@ -47,6 +46,4 @@ class Session(object):
 
     def clean_session(self):
         shutil.rmtree(self.user_folder, ignore_errors=True)
-
-
 

@@ -59,8 +59,10 @@ def upload_photo_on_server(filename,username,password):
         with requests.Session() as s:
             s.auth = (username, password)
             r = s.post(BACKEND_URL+'photo/upload/',files=files)
-            print(r.status_code)
-            print(r.content)
+            if r.status_code == 201 or r.status_code ==200:
+                return True
+            else:
+                return False
 
 
 def get_my_uploaded_photos():
