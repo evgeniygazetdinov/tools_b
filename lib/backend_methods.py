@@ -3,8 +3,9 @@ import json
 from lib.const import BACKEND_URL, URL
 from lib.base import send_message
 from urllib import request, parse
-import re
 import os
+import re
+
 
 
 #describe methods for work with  api on dv24.website
@@ -30,7 +31,9 @@ def create_user(username,password):
         return False
 
 
-def do_login(username,password,cur_chat):
+
+def do_login(username,password,cur_chat,show_user_content=False):
+
     url = BACKEND_URL+'user/check_current/'
     with requests.session() as s:
         s.auth = (username, password)
@@ -39,6 +42,8 @@ def do_login(username,password,cur_chat):
         print(r.content)
         if r.status_code == 201 or r.status_code ==200:
             send_message('you authenticated',cur_chat)
+            if show_user_content:
+                return json.loads(r.text)
             return True
         else:
             return False
@@ -51,8 +56,11 @@ def upload_photo_on_server(filename,username,password):
         with requests.Session() as s:
             s.auth = (username, password)
             r = s.post(BACKEND_URL+'photo/upload/',files=files)
-            print(r.status_code)
-            print(r.content)
+            if r.status_code == 201 or r.status_code ==200:
+                return True
+            else:
+                return False
+
 
 
 def get_my_uploaded_photos():
@@ -82,6 +90,5 @@ def upload_photo_from_telegram_and_get_path(url):
     filename = extract_name_from_content_dis(r.headers.get('content-disposition'))
     open(filename, 'wb').write(r.content)
     return filename, os.getcwd()+'/'+filename
-
 
 
