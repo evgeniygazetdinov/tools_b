@@ -7,7 +7,6 @@ import os
 import re
 
 
-
 #describe methods for work with  api on dv24.website
 
 def user_exist(username):
@@ -46,8 +45,7 @@ def do_login(username,password,cur_chat,show_user_content=False):
         else:
             return False
 
-          
-          
+
 def upload_photo_on_server(filename,username,password):
     with open(os.getcwd()+'/'+filename,'rb') as img:
         #name_img= os.path.basename(path_img)
@@ -60,8 +58,7 @@ def upload_photo_on_server(filename,username,password):
             else:
                 return False
 
-
-
+              
 def get_my_uploaded_photos():
     url = BACKEND_URL+'user/check_current/'
     with requests.session() as s:
@@ -87,6 +84,7 @@ def change_password(username,old_password,new_password):
         else:
             return False
 
+          
 def extract_name_from_content_dis(cd):
     if not cd:
            return 'None'
@@ -101,6 +99,6 @@ def upload_photo_from_telegram_and_get_path(url):
     filename = extract_name_from_content_dis(r.headers.get('content-disposition'))
     open(filename, 'wb').write(r.content)
     return filename, os.getcwd()+'/'+filename
-
+  
   
   
