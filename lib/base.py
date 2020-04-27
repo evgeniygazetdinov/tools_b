@@ -10,10 +10,23 @@ get_file = 'https://api.telegram.org/bot/getFile?file_id='
 
 
 def clean_patern(cur_message):
+    #refactor now
+    #template for 
+    #variable
     link = ''
-    if re.match(r'\w+=', cur_message):
-        link = cur_message.split('=')
+    if re.match(r'photo=', cur_message):
+        link = cur_message.split('photo=')
+    if re.match(r'document=', cur_message):
+        link = cur_message.split('document=')
+    if re.match(r'download_link=', cur_message):
+        link = cur_message.split('download_link=')
+    if re.match(r'old_password=', cur_message):
+        link = cur_message.split('old_password=')
+
+    if re.match(r'new_password=', cur_message):
+        link = cur_message.split('new_password=')
     return link[-1]
+]
 
 
 
