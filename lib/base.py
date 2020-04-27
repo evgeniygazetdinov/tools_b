@@ -10,7 +10,7 @@ get_file = 'https://api.telegram.org/bot/getFile?file_id='
 
 
 def clean_patern(cur_message):
-    #refactor now
+    #refactor later
     #template for 
     #variable
     link = ''
@@ -22,11 +22,10 @@ def clean_patern(cur_message):
         link = cur_message.split('download_link=')
     if re.match(r'oldpassword=', cur_message):
         link = cur_message.split('oldpassword=')
-
     if re.match(r'newpassword=', cur_message):
         link = cur_message.split('newpassword=')
     return link[-1]
-]
+
 
 
 
@@ -37,7 +36,6 @@ def get_link_for_update_photo(token,file_id_link):
     #get file path
     #insert file path into url
     #return link for downloadand  user_session.user_info['state']['login'] == 'in_proces
-
     url =clean_patern(file_id_link)
     file_id = requests.get(url)
     data = json.loads(file_id.text)
@@ -93,13 +91,13 @@ def find_user_message_chat(results):
             file_id_link = 'photo='+'https://api.telegram.org/bot{}/getFile?file_id={}'.format(token, cur_result['message']['photo'][-1]['file_id'])
             cur_message = get_link_for_update_photo(token,file_id_link)
             print(cur_message)
-
         elif 'document' in cur_result['message']:
             file_id_link = 'document='+'https://api.telegram.org/bot{}/getFile?file_id={}'.format(token, cur_result['message']['document']['thumb']['file_id'])
             cur_message = get_link_for_update_photo(token,file_id_link)
             print(cur_message)
         else:
             cur_message = cur_result['message']['text']
+
     if 'edited_message' in cur_result:
         cur_user = cur_result['edited_message']['chat']['username']
         cur_chat = cur_result['edited_message']["chat"]["id"]
@@ -136,3 +134,6 @@ def get_last_update_id(updates):
     for update in updates["result"]:
         update_ids.append(int(update["update_id"]))
     return max(update_ids)
+
+
+
