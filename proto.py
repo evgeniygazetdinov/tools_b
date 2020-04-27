@@ -11,9 +11,13 @@ from lib.backend_methods import change_password, user_exist, create_user, upload
 from lib.base import  (clean_patern, send_message, get_url, find_user_message_chat,
                   div_password, build_keyboard, get_json_from_url,get_last_update_id,
                   get_updates, get_updates, get_last_chat_id_and_text)
+
 login_items = ['my_uploads', 'upload_image', 'change_password', 'instructions','end_sessions']
 menu_items = ['create_profile','login','help']
 password_item = ['put password']
+
+
+
 def main_flow():
     last_update_id = None
     while True:
@@ -45,7 +49,6 @@ def main_flow():
                 if cur_message =='upload_image':
                     send_message('Drag your image', cur_chat)
                     user_session.update_state_user('upload','in_process')
-
                 if re.match(r'download_link=', cur_message) and user_session.user_info['state']['upload'] == 'in_process':
                     url = clean_patern(cur_message)
                     filename,path_file = upload_photo_from_telegram_and_get_path(url)
@@ -57,7 +60,6 @@ def main_flow():
                         send_message('something bad with server.Try again later'.format(cur_user), cur_chat)
                     user_session.update_state_user('login',False)
                     send_message('Choose your variant', cur_chat, login_keyboard)
-
                 if re.match('my_uploads',cur_message) and user_session.user_info['state']['login'] and user_session.user_info['password']:
                     content = do_login(cur_user,user_session.user_info['password'],cur_chat,show_user_content=True)
                     if content:
