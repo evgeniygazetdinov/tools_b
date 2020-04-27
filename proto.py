@@ -56,7 +56,6 @@ def main_flow():
                         send_message('file uploaded', cur_chat)
                     else:
                         send_message('something bad with server.Try again later'.format(cur_user), cur_chat)
-                    user_session.update_state_user('login',False)
                     send_message('Choose your variant', cur_chat, login_keyboard)
             ###########my_uploads#########################################
                 if re.match('my_uploads',cur_message) and user_session.user_info['state']['login'] and user_session.user_info['password']:
