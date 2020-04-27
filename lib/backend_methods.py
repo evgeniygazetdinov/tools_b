@@ -78,6 +78,18 @@ def get_my_uploaded_photos():
             return False
 
 
+
+def change_password(username,old_password,new_password):
+    url = BACKEND_URL+'user/update/'
+    body = {'old_password': old_password,'new_password': new_password}
+    with requests.session() as s:
+        s.auth = (username, old_password)
+        response = s.put(url,body)
+        print(response.content)
+        if response.status_code == 201 or response.status_code == 200:
+            return True
+        else:
+            return False
 def extract_name_from_content_dis(cd):
     if not cd:
            return 'None'
@@ -92,4 +104,3 @@ def upload_photo_from_telegram_and_get_path(url):
     filename = extract_name_from_content_dis(r.headers.get('content-disposition'))
     open(filename, 'wb').write(r.content)
     return filename, os.getcwd()+'/'+filename
-
