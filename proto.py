@@ -81,22 +81,19 @@ def main_flow():
             ##########change password######################################
                 if re.match('change_password',cur_message) and user_session.user_info['state']['login'] and user_session.user_info['password']:
                     send_message('put your old password', cur_chat)
-                    send_message('old_password=YOUR OLD PASSWORD', cur_chat)
+                    send_message('oldpassword= YOUR OLD PASSWORD', cur_chat)
                     user_session.update_state_user('change_password','in_process')
-                    print('in change password')
-                    print(user_session.user_info['state']['login'])
-                    print(user_session.user_info['password'])
-                if re.match(r'old_password=', cur_message) and user_session.user_info['state']['change_password'] == 'in_process':
+                if re.match(r'oldpassword=', cur_message) and user_session.user_info['state']['change_password'] == 'in_process':
                     old_password = clean_patern(cur_message)
                     if old_password == user_session.user_info['password']:
                         user_session.user_info['changer']['old_password'] = old_password
                         user_session.save_user_info()
                         send_message('put new_password', cur_chat)
-                        send_message('new_password=YOUR OLD PASSWORD', cur_chat)
+                        send_message('newpassword=YOUR NEW PASSWORD', cur_chat)
                     else:
                         send_message('this not look like your current password', cur_chat)
 
-                if re.match(r'new_password=', cur_message) and user_session.user_info['state']['change_password'] == 'in_process':
+                if re.match(r'newpassword=', cur_message) and user_session.user_info['state']['change_password'] == 'in_process':
                     new_password = clean_patern(cur_message)
                     #check password it is not common
                     old_password = user_session.user_info['changer']['old_password']
@@ -108,6 +105,7 @@ def main_flow():
                         user_session.update_state_user('change_password',True)
                     else:
                         send_message('something bad with server try again later', cur_chat)
+
             ################menu without login ###################################################
             else:
                 send_message('Choose your variant', cur_chat, menu_keyboard)

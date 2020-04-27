@@ -20,11 +20,11 @@ def clean_patern(cur_message):
         link = cur_message.split('document=')
     if re.match(r'download_link=', cur_message):
         link = cur_message.split('download_link=')
-    if re.match(r'old_password=', cur_message):
-        link = cur_message.split('old_password=')
+    if re.match(r'oldpassword=', cur_message):
+        link = cur_message.split('oldpassword=')
 
-    if re.match(r'new_password=', cur_message):
-        link = cur_message.split('new_password=')
+    if re.match(r'newpassword=', cur_message):
+        link = cur_message.split('newpassword=')
     return link[-1]
 ]
 
