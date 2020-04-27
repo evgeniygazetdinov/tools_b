@@ -19,7 +19,8 @@ class Session(object):
 
         else:
             self.user_info = {'username':username,'password':password,
-            'state': {'login': False, 'created': False,'upload': False}}
+            'state': {'login': False, 'created': False,'upload': False,'change_password':False},
+            'changer':{'old_password':False,'new_password':False}}
             self.user_folder = self.create_user_folder()
             self.save_user_info()
 

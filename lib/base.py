@@ -9,15 +9,10 @@ menu_items = ['create_profile','login','help']
 get_file = 'https://api.telegram.org/bot/getFile?file_id='
 
 
-def clean_url(cur_message):
+def clean_patern(cur_message):
     link = ''
-    if re.match(r'photo=', cur_message):
-        link = cur_message.split('photo=')
-    if re.match(r'document=', cur_message):
-        link = cur_message.split('document=')
-    if re.match(r'download_link=', cur_message):
-        link = cur_message.split('download_link=')
-    print(link)
+    if re.match(r'\w+=', cur_message):
+        link = cur_message.split('=')
     return link[-1]
 
 
@@ -29,7 +24,7 @@ def get_link_for_update_photo(token,file_id_link):
     #get file path
     #insert file path into url
     #return link for downloadand  user_session.user_info['state']['login'] == 'in_proces
-    url = clean_url(file_id_link)
+    url =clean_patern(file_id_link)
     file_id = requests.get(url)
     data = json.loads(file_id.text)
     file_path = data['result']['file_path']
