@@ -2,5 +2,6 @@ const.py
 db.sqlite
 *.pyc
 *.py.swp
+
 __pycache__/
 sessions/

@@ -1,6 +1,4 @@
 
-
-
 import os
 import json
 import shutil
@@ -24,11 +22,12 @@ class Session(object):
             'state': {'login': False, 'created': False,'upload': False,'change_password':False},
             'changer':{'old_password':False,'new_password':False},
             'last_action':datetime.now().strftime('%Y-%m-%d %H:%M')}
-
             self.user_folder = self.create_user_folder()
             self.save_user_info()
 
     def update_state_user(self,state,value,password=False):
+        if password == False:
+           self.user_info['password'] = self.password
         self.user_info['state'][state] = value
         if password:
             self.user_info['password'] = password
