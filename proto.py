@@ -64,9 +64,8 @@ def main_flow():
                         if len(content['photos']) > 0:
                             for photo in content['photos']:
                                 send_message("""
-                                                id:                                                                                                                                         {} 
-                                                \n created:
-                                                    {} 
+                                                id: {}                                                                                                                                       {} 
+                                                \n created: {} 
                                                 \n unique link:
                                                     {} 
                                                 \n delete link:
