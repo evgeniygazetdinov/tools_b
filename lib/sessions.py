@@ -1,8 +1,8 @@
+
 import os
 import json
 import shutil
-
-
+from datetime import datetime
 
 
 class Session(object):
@@ -20,7 +20,8 @@ class Session(object):
         else:
             self.user_info = {'username':username,'password':password,
             'state': {'login': False, 'created': False,'upload': False,'change_password':False},
-            'changer':{'old_password':False,'new_password':False}}
+            'changer':{'old_password':False,'new_password':False},
+            'last_action':datetime.now().strftime('%Y-%m-%d %H:%M')}
             self.user_folder = self.create_user_folder()
             self.save_user_info()
 
@@ -34,6 +35,7 @@ class Session(object):
         print(self.user_info)
 
     def save_user_info(self):
+        self.user_info['last_action'] = datetime.now().strftime('%Y-%m-%d %H:%M')
         with open(self.user_folder +'/{}.json'.format(self.username), 'w', encoding='utf-8') as f:
             json.dump(self.user_info, f, ensure_ascii=False, indent=4)
 

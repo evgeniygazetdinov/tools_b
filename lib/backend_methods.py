@@ -30,6 +30,7 @@ def create_user(username,password):
         return False
 
 
+
 def do_login(username,password,cur_chat,show_user_content=False):
     url = BACKEND_URL+'user/check_current/'
     with requests.session() as s:
@@ -58,7 +59,7 @@ def upload_photo_on_server(filename,username,password):
             else:
                 return False
 
-              
+
 def get_my_uploaded_photos():
     url = BACKEND_URL+'user/check_current/'
     with requests.session() as s:
@@ -99,6 +100,5 @@ def upload_photo_from_telegram_and_get_path(url):
     filename = extract_name_from_content_dis(r.headers.get('content-disposition'))
     open(filename, 'wb').write(r.content)
     return filename, os.getcwd()+'/'+filename
-  
-  
+
   

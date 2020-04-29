@@ -10,7 +10,6 @@ get_file = 'https://api.telegram.org/bot/getFile?file_id='
 
 
 def clean_patern(cur_message):
-    #refactor later
     #template for 
     #variable
     link = ''
@@ -25,7 +24,6 @@ def clean_patern(cur_message):
     if re.match(r'newpassword=', cur_message):
         link = cur_message.split('newpassword=')
     return link[-1]
-
 
 
 
@@ -136,4 +134,11 @@ def get_last_update_id(updates):
     return max(update_ids)
 
 
+def delete_message(chat_id,message_id):
+    url = URL + '/deletemessage?message_id={1}&chat_id={2}'.format(message_id, chat_id)
+    response = requests.get(url)
+    if response.status_code == 201 or response.status_code ==200:
+        return True
+    else: 
+        return False
 

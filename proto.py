@@ -2,11 +2,11 @@ import requests
 import time
 import urllib
 import re
-import sys 
+import sys
 
 import os
 from lib.sessions import Session
-from lib.const import  URL 
+from lib.const import  URL
 from lib.protect import do_some_protection
 from lib.backend_methods import change_password, user_exist, create_user, upload_photo_from_telegram_and_get_path,do_login, upload_photo_on_server
 from lib.base import  (clean_patern, send_message, get_url, find_user_message_chat,
@@ -25,7 +25,7 @@ def main_flow():
             sys.exit(0)
         if len(updates["result"]) != 0:
             #init section
-            last_update_id = get_last_update_id(updates) + 1 
+            last_update_id = get_last_update_id(updates) + 1
             cur_user, cur_chat, cur_message = find_user_message_chat(updates['result'])
             login_keyboard = build_keyboard(login_items)
             menu_keyboard = build_keyboard(menu_items)
@@ -33,7 +33,7 @@ def main_flow():
             if cur_message == '/start':
                 send_message("hello this photohosting bot please create profile or login",cur_chat)
                 send_message('Choose your variant', cur_chat, menu_keyboard)
-
+                user_session.save_user_info()
             if user_session.user_info['state']['login'] and user_session.user_info['password']:
                 send_message('Choose your variant', cur_chat, login_keyboard)
             ###############end_session##################################################
@@ -52,31 +52,34 @@ def main_flow():
                     filename,path_file = upload_photo_from_telegram_and_get_path(url)
                     sucess_upload = upload_photo_on_server(filename,cur_user,user_session.user_info['password'])
                     os.remove(path_file)
+                    user_session.save_user_info()
                     if sucess_upload:
                         send_message('file uploaded', cur_chat)
+                        user_session.save_user_info()
                     else:
                         send_message('something bad with server.Try again later'.format(cur_user), cur_chat)
+                        user_session.save_user_info()
                     send_message('Choose your variant', cur_chat, login_keyboard)
+                    user_session.save_user_info()
             ###########my_uploads#########################################
                 if re.match('my_uploads',cur_message) and user_session.user_info['state']['login'] and user_session.user_info['password']:
                     content = do_login(cur_user,user_session.user_info['password'],cur_chat,show_user_content=True)
+                    user_session.save_user_info()
                     if content:
                         if len(content['photos']) > 0:
                             for photo in content['photos']:
                                 send_message("""
-                                                id:                                                                                                                                         {} 
-                                                \n created:
-                                                    {} 
-                                                \n unique link:
-                                                    {} 
-                                                \n delete link:
-                                                    {} 
-                                                \n views:
-                                                    {}
-                                                \n """.format(photo['id'],photo['created_date'],photo['unique_link'],photo['delete_by_unique_link'],[view for view in photo['views']]), cur_chat)
+                                            id:{} 
+                                            \n created: {} 
+                                            \n unique link:{} 
+                                            \n delete link:{} 
+                                            \n views:{}
+                                            """.format(photo['id'],photo['created_date'],photo['unique_link'],photo['delete_by_unique_link'],[view for view in photo['views']]), cur_chat)
                             print(photo['unique_link'])
+                            user_session.save_user_info()
                         else:
                             send_message('no photos', cur_chat)
+                            user_session.save_user_info()
             ##########change password######################################
                 if re.match('change_password',cur_message) and user_session.user_info['state']['login'] and user_session.user_info['password']:
                     send_message('put your old password', cur_chat)
@@ -91,19 +94,21 @@ def main_flow():
                         send_message('newpassword=YOUR NEW PASSWORD', cur_chat)
                     else:
                         send_message('this not look like your current password', cur_chat)
+                        user_session.save_user_info()
 
                 if re.match(r'newpassword=', cur_message) and user_session.user_info['state']['change_password'] == 'in_process':
                     new_password = clean_patern(cur_message)
                     #check password it is not common
                     old_password = user_session.user_info['changer']['old_password']
+                    user_session.save_user_info()
                     if change_password(cur_user,old_password,new_password):
-    
                         send_message('password was changed', cur_chat)
                         user_session.user_info['password'] = new_password
                         user_session.user_info['changer']['new_password'] = new_password
                         user_session.update_state_user('change_password',True)
                     else:
                         send_message('something bad with server try again later', cur_chat)
+                        user_session.save_user_info()
 
             ################menu without login ###################################################
             else:
@@ -118,6 +123,7 @@ def main_flow():
                     else:
                         send_message('Your user not created in system -> choose create profile', cur_chat)
                         send_message('Choose your variant', cur_chat, menu_keyboard)
+                        user_session.save_user_info()
 
                 if re.match(r'mypassword=[A-Za-z0-9@#$%^&+=]{8,}', cur_message) and  user_session.user_info['state']['login'] == 'in_process':
                     password = div_password(cur_message)
@@ -125,9 +131,11 @@ def main_flow():
                     if login:
                         send_message('Choose your variant', cur_chat, login_keyboard)
                         user_session.update_state_user('login',True,password)
+
                     else:
                         send_message('something bad with your password try again', cur_chat)
                         send_message('Choose your variant', cur_chat, menu_keyboard)
+                        user_session.save_user_info()
 
 
                 if cur_message == 'create_profile':
@@ -135,7 +143,7 @@ def main_flow():
                     if exist:
                         send_message('your user already exists .try to login', cur_chat)
                         send_message('Choose your variant', cur_chat, menu_keyboard)
-
+                        user_session.save_user_info()
                     else:
                         send_message('YOUR telegram username it is login', cur_chat)
                         send_message('PUT YOUR PASSWORD', cur_chat)
@@ -145,21 +153,25 @@ def main_flow():
                 if re.match(r'mypassword=[A-Za-z0-9@#$%^&+=]{8,}', cur_message) and user_session.user_info['state']['created'] == 'in_process':
                     password = div_password(cur_message)
                     success = create_user(cur_user,password)
+                    user_session.save_user_info()
                     if success:
                         send_message('profile was created please try login', cur_chat)
                         user_session.update_state_user('created',True,password)
+                        user_session.save_user_info()
                     else:
                         send_message('something bad with server.Try again later'.format(cur_user), cur_chat)
                         send_message('Choose your variant', cur_chat, menu_keyboard)
-
+                        user_session.save_user_info()
                 if cur_message == 'help':
                     send_message('help MUST BE HERE', cur_chat)
                     send_message('Choose your variant', cur_chat, menu_keyboard)
+                    user_session.save_user_info()
     time.sleep(0.5)
 
 
 
 if __name__ == '__main__':
     main_flow()
+
 
 
