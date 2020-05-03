@@ -9,6 +9,7 @@ import threading
 
 import os
 from lib.sessions import Session
+from lib.session_methods get_user_action, get_current_chat, notify_user
 from lib.const import  URL
 from lib.protect import do_some_protection
 from lib.backend_methods import change_password, user_exist, create_user, upload_photo_from_telegram_and_get_path,do_login, upload_photo_on_server
@@ -29,8 +30,18 @@ password_item = ['put password']
 
 
 def check_user_actions():
-    time.sleep(60)
-    print('this is check_user')
+    #need action from change iteration
+    while True:
+        user = get_current_user()
+        user_actions = get_user_action(user)
+        initial_time = user_actions['last_action']
+        time.sleep(60)
+        user_actions_after = get_user_action(user)
+        action_after_60_seconds = user_actions['last_action']
+        if initial_time == user_action_after_60_seconds:
+            chat = get_current_chat()
+            notify_user(chat)
+            print('this is check_user')
 
 
 def check_telegram_updates():
