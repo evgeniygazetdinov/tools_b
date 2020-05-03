@@ -1,4 +1,3 @@
-
 import requests
 import time
 import urllib
@@ -6,7 +5,6 @@ import re
 import sys
 import datetime
 import threading
-
 import os
 from lib.sessions import Session
 from lib.const import  URL
@@ -22,19 +20,12 @@ password_item = ['put password']
 
 
 
-
-
-
-
-
-
 def check_user_actions():
     time.sleep(60)
     print('this is check_user')
 
 
 def check_telegram_updates():
-    
         last_update_id = None
         while True:
             try:
@@ -187,7 +178,8 @@ def check_telegram_updates():
                         send_message('Choose your variant', cur_chat, menu_keyboard)
                         user_session.save_user_info()
             time.sleep(0.5)
-    
+
+            
 def main_flow():
     t1 = threading.Thread(target=check_telegram_updates)
     t2 = threading.Thread(target=check_user)
@@ -195,7 +187,7 @@ def main_flow():
     t2.start()
 
       
-    
+   
 
 if __name__ == '__main__':
     main_flow()
