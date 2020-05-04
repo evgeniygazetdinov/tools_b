@@ -1,3 +1,4 @@
+
 import requests
 import time
 import urllib
@@ -5,8 +6,10 @@ import re
 import sys
 import datetime
 import threading
+
 import os
 from lib.sessions import Session
+from lib.session_methods import  get_user_from_session, get_action_from_session,get_current_chat,notify_user
 from lib.const import  URL
 from lib.protect import do_some_protection
 from lib.backend_methods import change_password, user_exist, create_user, upload_photo_from_telegram_and_get_path,do_login, upload_photo_on_server
@@ -20,9 +23,28 @@ password_item = ['put password']
 
 
 
-def check_user_actions():
-    time.sleep(60)
-    print('this is check_user')
+
+
+def check_user_actions(cur_user,session):
+    cur_chat,user_actions = get_action_from_session(cur_user)
+    initial_time = session.user_info['last_action']
+    for i in range(61):
+        time.sleep(1)
+        print(i)
+        #check_user_folder
+        cur_chat,current_action = get_action_from_session(cur_user)
+        if current_action['last_action'] != initial_time:
+            #thread.terminate()
+            return
+        if i == 60:
+            #clean_session
+            #remove_history
+            #notify_user()
+            print('60second passed')
+       # if initial_time != current_action['last_action'] or checked_user !=user:
+
+        #chat = get_current_chat()
+        #notify_user(chat)
 
 
 def check_telegram_updates():
@@ -39,7 +61,9 @@ def check_telegram_updates():
                 cur_user, cur_chat, cur_message = find_user_message_chat(updates['result'])
                 login_keyboard = build_keyboard(login_items)
                 menu_keyboard = build_keyboard(menu_items)
-                user_session = Session(cur_user)
+                user_session = Session(cur_user,cur_chat=cur_chat)
+                thread2 = threading.Thread(target=check_user_actions,args=(cur_user, user_session))
+                thread2.start()
                 if cur_message == '/start':
                     send_message("hello this photohosting bot please create profile or login",cur_chat)
                     send_message('Choose your variant', cur_chat, menu_keyboard)
@@ -149,17 +173,17 @@ def check_telegram_updates():
                             send_message('something bad with your password try again', cur_chat)
                             send_message('Choose your variant', cur_chat, menu_keyboard)
                             user_session.save_user_info()
-                        if cur_message == 'create_profile':
+                    if cur_message == 'create_profile':
                             exist = user_exist(cur_user)
-                        if exist:
-                            send_message('your user already exists .try to login', cur_chat)
-                            send_message('Choose your variant', cur_chat, menu_keyboard)
-                            user_session.save_user_info()
-                        else:
-                            send_message('YOUR telegram username it is login', cur_chat)
-                            send_message('PUT YOUR PASSWORD', cur_chat)
-                            send_message('mypassword=YOUR PASSWORD MUST BE HERE', cur_chat)
-                            user_session.update_state_user('created','in_process')
+                            if exist:
+                                send_message('your user already exists .try to login', cur_chat)
+                                send_message('Choose your variant', cur_chat, menu_keyboard)
+                                user_session.save_user_info()
+                            else:
+                                send_message('YOUR telegram username it is login', cur_chat)
+                                send_message('PUT YOUR PASSWORD', cur_chat)
+                                send_message('mypassword=YOUR PASSWORD MUST BE HERE', cur_chat)
+                                user_session.update_state_user('created','in_process')
 
                     if re.match(r'mypassword=[A-Za-z0-9@#$%^&+=]{8,}', cur_message) and user_session.user_info['state']['created'] == 'in_process':
                         password = div_password(cur_message)
@@ -178,18 +202,16 @@ def check_telegram_updates():
                         send_message('Choose your variant', cur_chat, menu_keyboard)
                         user_session.save_user_info()
             time.sleep(0.5)
-
-            
+    
 def main_flow():
     t1 = threading.Thread(target=check_telegram_updates)
-    t2 = threading.Thread(target=check_user)
     t1.start()
-    t2.start()
 
       
-   
+    
 
 if __name__ == '__main__':
+    do_some_protection()
     main_flow()
 
 
