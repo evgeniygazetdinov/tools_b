@@ -6,8 +6,7 @@ import re
 import sys
 import datetime
 import threading
-
-import os
+from multiprocessing import Process,current_process,cpu_count,active_children
 from lib.sessions import Session
 from lib.session_methods import  get_user_from_session, get_action_from_session,get_current_chat,notify_user
 from lib.const import  URL
@@ -26,30 +25,29 @@ password_item = ['put password']
 
 
 def check_user_actions(cur_user,session):
-    cur_chat,user_actions = get_action_from_session(cur_user)
-    initial_time = session.user_info['last_action']
-    for i in range(61):
+    minute = 60
+    begin = 0
+    while check_user and session.get_user_info_value('pushed_button'):
+        begin+=1
         time.sleep(1)
-        print(i)
+        print(begin)
         #check_user_folder
-        cur_chat,current_action = get_action_from_session(cur_user)
-        if current_action['last_action'] != initial_time:
-            #thread.terminate()
-            return
-        if i == 60:
-            #clean_session
+        if begin  == minute:
+            print('time is over')
+            break
+        #if i == 60:
             #remove_history
             #notify_user()
-            print('60second passed')
-       # if initial_time != current_action['last_action'] or checked_user !=user:
-
-        #chat = get_current_chat()
-        #notify_user(chat)
+        #    session.clean_session()
+        #    print('60second passed')
 
 
 def check_telegram_updates():
         last_update_id = None
+        args = []
         while True:
+            global check_user
+            check_user =True
             try:
                 updates = get_updates(last_update_id)
             except KeyboardInterrupt:
@@ -61,13 +59,16 @@ def check_telegram_updates():
                 cur_user, cur_chat, cur_message = find_user_message_chat(updates['result'])
                 login_keyboard = build_keyboard(login_items)
                 menu_keyboard = build_keyboard(menu_items)
-                user_session = Session(cur_user,cur_chat=cur_chat)
-                thread2 = threading.Thread(target=check_user_actions,args=(cur_user, user_session))
-                thread2.start()
+                user_session = Session(cur_user)
+                if cur_message:
+                    for p in active_children():
+                        p.terminate()
+                    user_session.update_user_info('pushed_button',True)
+                    thread2 = Process(name ="user_check",target=check_user_actions,args = (cur_user, user_session))
+                    thread2.start()
                 if cur_message == '/start':
                     send_message("hello this photohosting bot please create profile or login",cur_chat)
                     send_message('Choose your variant', cur_chat, menu_keyboard)
-                    user_session.save_user_info()
                 if user_session.user_info['state']['login'] and user_session.user_info['password']:
                     send_message('Choose your variant', cur_chat, login_keyboard)
                 ###############end_session##################################################
@@ -146,8 +147,7 @@ def check_telegram_updates():
                         else:
                             send_message('something bad with server try again later', cur_chat)
                             user_session.save_user_info()
-
-                ################menu withoutTypeError: 'module' object is not callable login ###################################################
+                ################menu without login###################################################
                 else:
                     send_message('Choose your variant', cur_chat, menu_keyboard)
                     if cur_message =='login':
@@ -204,8 +204,7 @@ def check_telegram_updates():
             time.sleep(0.5)
     
 def main_flow():
-    t1 = threading.Thread(target=check_telegram_updates)
-    t1.start()
+    check_telegram_updates()
 
       
     
