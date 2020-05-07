@@ -14,10 +14,7 @@ def user_exist(username):
     url = BACKEND_URL+'user/exists/'+username+'/'
     response = requests.get(url)
     print(response.status_code)
-    if response.status_code == 200:
-        return True
-    else:
-        return False
+    return True if response.status_code == 200 else False
 
 
 def create_user(username,password):

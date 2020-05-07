@@ -13,7 +13,6 @@ def looking_for_changes():
        
 
 
-
 def json_to_dict(path):
     with open(path) as json_file:
         data = json.load(json_file)
@@ -36,7 +35,7 @@ def get_user_from_session():
 def get_action_from_session(user):
     user_path = PATH+'/'+user+'/'+user+'.json'
     user_dict = json_to_dict(user_path)
-    return user_dict['cur_chat'],user_dict
+    return user_dict
     
 def get_current_chat():
     pass
