@@ -1,11 +1,16 @@
 {
-    "username": "n_Set",
-    "uploaded_pictures": [],
+    "pushed_button": true,
+    "password": false,
+    "changer": {
+        "new_password": false,
+        "old_password": false
+    },
     "state": {
         "login": false,
-        "registred": false,
-        "exists": false,
-        "greeting": true
+        "change_password": false,
+        "created": "in_process",
+        "upload": false
     },
-    "password": false
+    "username": "n_Set",
+    "last_action": "2020-05-07 19:53"
 }

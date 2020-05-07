@@ -10,10 +10,9 @@ import time
 
 class Session(object):
 
-    def __init__(self,username,updates,password=False):
+    def __init__(self,username,password=False):
         self.username = username
         self.password = password
-        self.updates = updates if updates else 0        
         #check_folder
         #exists load 
         #else create
@@ -26,11 +25,13 @@ class Session(object):
             'state': {'login': False, 'created': False,'upload': False,'change_password':False},
             'changer':{'old_password':False,'new_password':False},
             'last_action':datetime.now().strftime('%Y-%m-%d %H:%M'),
-            'updates': self.updates}
+            'pushed_button': False}
             self.user_folder = self.create_user_folder()
             self.save_user_info()
 
-
+    def update_user_info(self,value,condition):
+        self.user_info[value] = condition
+        self.save_user_info()
 
     def update_last_action(self):
         self.user_info['last_action'] = datetime.now().strftime('%Y-%m-%d %H:%M')

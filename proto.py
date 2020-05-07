@@ -3,10 +3,11 @@ import requests
 import time
 import urllib
 import re
+import os
 import sys
 import datetime
 import threading
-
+from multiprocessing import Process,current_process,cpu_count,active_children
 import os
 from lib.sessions import Session
 from lib.session_methods import  get_user_from_session, get_action_from_session,get_current_chat,notify_user
@@ -28,14 +29,10 @@ password_item = ['put password']
 def check_user_actions(cur_user,session):
     minute = 60
     begin = 0
-    print( check_user)
-    print(pushed_button)
-    print(check_user and pushed_button)
-    while check_user and pushed_button:
+    while check_user and session.get_user_info_value('pushed_button'):
         begin+=1
-        print(begin)
-        print(check_user)
         time.sleep(1)
+        print(begin)
         #check_user_folder
         if begin  == minute:
             print('time is over')
@@ -56,9 +53,8 @@ def check_telegram_updates():
         args = []
         while True:
             global check_user
-            global pushed_button
-            pushed_button = False
-            check_user = False
+            global thread2
+            check_user =True
             try:
                 updates = get_updates(last_update_id)
             except KeyboardInterrupt:
@@ -70,13 +66,14 @@ def check_telegram_updates():
                 cur_user, cur_chat, cur_message = find_user_message_chat(updates['result'])
                 login_keyboard = build_keyboard(login_items)
                 menu_keyboard = build_keyboard(menu_items)
-                user_session = Session(cur_user,updates=last_update_id)
-                check_user =True
+                user_session = Session(cur_user)
+                
                 if cur_message:
-                    thread2 = threading.Thread(target=check_user_actions,args = (cur_user, user_session))
+                    for p in active_children():
+                        p.terminate()
+                    user_session.update_user_info('pushed_button',True)
+                    thread2 = Process(name ="user_check",target=check_user_actions,args = (cur_user, user_session))
                     thread2.start()
-                    pushed_button = True
-                    user_session.save_user_info()
                 if cur_message == '/start':
                     send_message("hello this photohosting bot please create profile or login",cur_chat)
                     send_message('Choose your variant', cur_chat, menu_keyboard)
