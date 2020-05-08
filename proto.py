@@ -37,11 +37,12 @@ def check_user_actions(cur_user,session):
             send_message('60 second passed',session.get_user_info_value('cur_chat'))
             break
 
-
 def check_telegram_updates():
         last_update_id = None
         args = []
         while True:
+            global check_user
+            check_user =True
             try:
                 updates = get_updates(last_update_id)
             except KeyboardInterrupt:
@@ -63,6 +64,7 @@ def check_telegram_updates():
                     thread2 = Process(name ="user_check",target=check_user_actions,args = (cur_user, user_session))
                     thread2.start()
                 #message-handlers
+
                 if cur_message == '/start':
                     send_message("hello this photohosting bot please create profile or login",cur_chat)
                     send_message('Choose your variant', cur_chat, menu_keyboard)
