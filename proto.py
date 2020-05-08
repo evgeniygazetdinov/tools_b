@@ -27,20 +27,15 @@ password_item = ['put password']
 def check_user_actions(cur_user,session):
     minute = 60
     begin = 0
-    while check_user and session.get_user_info_value('pushed_button'):
+    while session.get_user_info_value('pushed_button'):
         begin+=1
         time.sleep(1)
         print(begin)
         #check_user_folder
         if begin  == minute:
             print('time is over')
+            send_message('60 second passed',session.get_user_info_value('cur_chat'))
             break
-        #if i == 60:
-            #remove_history
-            #notify_user()
-        #    session.clean_session()
-        #    print('60second passed')
-
 
 def check_telegram_updates():
         last_update_id = None
@@ -59,13 +54,17 @@ def check_telegram_updates():
                 cur_user, cur_chat, cur_message = find_user_message_chat(updates['result'])
                 login_keyboard = build_keyboard(login_items)
                 menu_keyboard = build_keyboard(menu_items)
-                user_session = Session(cur_user)
+                user_session = Session(cur_user,cur_chat)
                 if cur_message:
+                    #remove active threads before
                     for p in active_children():
                         p.terminate()
                     user_session.update_user_info('pushed_button',True)
+                    #BEGIN new counter user action
                     thread2 = Process(name ="user_check",target=check_user_actions,args = (cur_user, user_session))
                     thread2.start()
+                #message-handlers
+
                 if cur_message == '/start':
                     send_message("hello this photohosting bot please create profile or login",cur_chat)
                     send_message('Choose your variant', cur_chat, menu_keyboard)
