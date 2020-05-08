@@ -1,32 +1,17 @@
 {
-<<<<<<< HEAD
-    "cur_chat": 324598071,
-    "state": {
-        "change_password": false,
-        "login": false,
-=======
     "pushed_button": true,
-    "password": false,
-    "changer": {
-        "new_password": false,
-        "old_password": false
-    },
+    "last_action": "2020-05-08 10:09",
     "state": {
-        "login": false,
         "change_password": false,
->>>>>>> origin/develop
-        "created": "in_process",
-        "upload": false
+        "created": false,
+        "upload": false,
+        "login": false
     },
+    "cur_chat": 324598071,
     "username": "n_Set",
-<<<<<<< HEAD
     "changer": {
         "new_password": false,
         "old_password": false
     },
-    "password": false,
-    "last_action": "2020-05-04 17:58"
-=======
-    "last_action": "2020-05-07 19:53"
->>>>>>> origin/develop
+    "password": false
 }

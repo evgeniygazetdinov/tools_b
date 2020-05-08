@@ -9,9 +9,10 @@ import time
 
 
 class Session(object):
-    def __init__(self,username,password=False):
+    def __init__(self,username,chat,password=False):
         self.username = username
         self.password = password
+        self.cur_chat = chat
         #check_folder
         #exists load 
         #else create
@@ -24,7 +25,7 @@ class Session(object):
             'state': {'login': False, 'created': False,'upload': False,'change_password':False},
             'changer':{'old_password':False,'new_password':False},
             'last_action':datetime.now().strftime('%Y-%m-%d %H:%M'),
-            'pushed_button': False}
+            'pushed_button': False,'cur_chat': self.cur_chat}
             self.user_folder = self.create_user_folder()
             self.save_user_info()
 
