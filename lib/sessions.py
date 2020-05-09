@@ -9,11 +9,11 @@ import time
 
 
 class Session(object):
-    def __init__(self,username,chat,password=False):
+    def __init__(self, username, chat, message_id, password=False):
         self.username = username
         self.password = password
         self.cur_chat = chat
-
+        self.message_id = message_id
         #check_folder
         #exists load 
         #else create
@@ -26,8 +26,7 @@ class Session(object):
             'state': {'login': False, 'created': False,'upload': False,'change_password':False},
             'changer':{'old_password':False,'new_password':False},
             'last_action':datetime.now().strftime('%Y-%m-%d %H:%M'),
-            'pushed_button': False,'cur_chat': self.cur_chat}
-
+            'pushed_button': False,'cur_chat': self.cur_chat,'message_id':self.message_id}
             self.user_folder = self.create_user_folder()
             self.save_user_info()
 
@@ -52,9 +51,13 @@ class Session(object):
         self.update_last_action()
         return self.user_info[value]
 
+    def save_to_user_history():
+        with open(self.user_folder +'/history.json', 'w+', encoding='utf-8') as f:
+            json.dump(self.user_info, f, ensure_ascii=False, indent=4)
 
     def save_user_info(self):
         self.update_last_action()
+        #self.save_to_user_history()
         with open(self.user_folder +'/{}.json'.format(self.username), 'w', encoding='utf-8') as f:
             json.dump(self.user_info, f, ensure_ascii=False, indent=4)
 
