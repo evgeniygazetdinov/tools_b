@@ -3,13 +3,49 @@ import re
 from lib.const import URL, token
 import requests
 import json
-
+import time 
+import os
 
 menu_items = ['create_profile','login','help']
 get_file = 'https://api.telegram.org/bot/getFile?file_id='
+path =os.getcwd()+'/session/bot_action.json'
+ 
+
+
+
+def store_bot_action(result):
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(result, f, ensure_ascii=False, indent=4)
+
+
+def get_data(user):
+    if os.exist(path):
+        with open(path) as json_file:
+            data = json.load(json_file)
+    else:
+        data = {user:[]}
+        return data
+
+
+def save_bot_action(content):
+    content = content.json()
+    if len(content["result"]) != 0:
+        cur_result = content["result"][0]
+        if 'message' in cur_result:
+            if cur_result['message']['from']['is_bot'] :
+                user = cur_result['chat']['username']
+                message = content['result']['message_id']
+                data = get_data(user)
+                result = data['user'].append(message)
+                store_bot_action(result)
+                print('action saved')
+
+
+
 
 
 def clean_patern(cur_message):
+    #refactor after
     link = ''
     if re.match(r'photo=', cur_message):
         link = cur_message.split('photo=')
@@ -37,7 +73,7 @@ def get_link_for_update_photo(token,file_id_link):
     #get request by this
     #get file path
     #insert file path into url
-    #return link for downloadand  user_session.user_info['state']['login'] == 'in_proces
+    #return link for download there state is user_session.user_info['state']['login'] == 'in_proces
 
     url =clean_patern(file_id_link)
     file_id = requests.get(url)
@@ -56,6 +92,9 @@ def build_keyboard(items):
 def get_url(url):
     response = requests.get(url)
     content = response.content.decode("utf8")
+    #save bot action here
+    save_bot_action(response)
+    print(content)
     return content
 
 def div_password(password):
@@ -85,6 +124,7 @@ def find_user_message_chat(results):
     if 'message' in cur_result:
         cur_user = cur_result['message']['chat']['username']
         cur_chat = cur_result['message']["chat"]["id"]
+        message_id = cur_result['message']['message_id']
         if 'sticker' in cur_result['message']:
             cur_message = 'sticker'
             send_message('nice sticker',cur_chat)
@@ -106,7 +146,7 @@ def find_user_message_chat(results):
         cur_chat = cur_result['edited_message']["chat"]["id"]
         cur_message = cur_result['edited_message']['text']
 
-    return cur_user, cur_chat, cur_message
+    return cur_user, cur_chat, cur_message,message_id
 
 
 
@@ -140,10 +180,16 @@ def get_last_update_id(updates):
 
 
 
+
+
 def delete_message(chat_id,message_id):
     url = URL + '/deletemessage?message_id={1}&chat_id={2}'.format(message_id, chat_id)
     response = requests.get(url)
-    if response.status_code == 201 or response.status_code ==200:
-        return True
-    else: 
-        return False
+    print(response.status_code)
+
+def clean_history(message_id,chat_id):
+    for id in range(message_id,0,1):
+        delete_message(id,chat_id)
+        print(id)
+        time.sleep(0.1)
+

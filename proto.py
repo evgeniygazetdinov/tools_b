@@ -8,13 +8,12 @@ import datetime
 import threading
 from multiprocessing import Process,current_process,cpu_count,active_children
 from lib.sessions import Session
-from lib.session_methods import  get_user_from_session, get_action_from_session,get_current_chat,notify_user
 from lib.const import  URL
 from lib.protect import do_some_protection
 from lib.backend_methods import change_password, user_exist, create_user, upload_photo_from_telegram_and_get_path,do_login, upload_photo_on_server
 from lib.base import  (clean_patern, send_message, get_url, find_user_message_chat,
                   div_password, build_keyboard, get_json_from_url,get_last_update_id,
-                  get_updates, get_updates, get_last_chat_id_and_text)
+                  get_updates, get_updates, get_last_chat_id_and_text, clean_history)
 login_items = ['my_uploads', 'upload_image', 'change_password', 'instructions','end_sessions']
 menu_items = ['create_profile','login','help']
 password_item = ['put password']
@@ -25,6 +24,7 @@ password_item = ['put password']
 
 
 def check_user_actions(cur_user,session):
+    #just call and wait 60 second /if he passed clean history and clean session
     minute = 60
     begin = 0
     while session.get_user_info_value('pushed_button'):
@@ -34,7 +34,9 @@ def check_user_actions(cur_user,session):
         #check_user_folder
         if begin  == minute:
             print('time is over')
-            send_message('60 second passed',session.get_user_info_value('cur_chat'))
+            send_message('60 second passed',session.get_user_info_value('cur_chat') )
+            clean_history(session.get_user_info_value('message_id'),session.get_user_info_value('cur_chat'))
+            session.clean_session()
             break
 
 
@@ -50,12 +52,13 @@ def check_telegram_updates():
             if len(updates["result"]) != 0:
                 #init section
                 last_update_id = get_last_update_id(updates) + 1
-                cur_user, cur_chat, cur_message = find_user_message_chat(updates['result'])
+                cur_user, cur_chat, cur_message,message_id = find_user_message_chat(updates['result'])
                 login_keyboard = build_keyboard(login_items)
                 menu_keyboard = build_keyboard(menu_items)
-                user_session = Session(cur_user,cur_chat)
+                user_session = Session(cur_user,cur_chat,message_id)
                 if cur_message:
                     #remove active threads before
+                    #here save user_message_info session
                     for p in active_children():
                         p.terminate()
                     user_session.update_user_info('pushed_button',True)
