@@ -93,7 +93,7 @@ def get_url(url):
     response = requests.get(url)
     content = response.content.decode("utf8")
     #save bot action here
-    save_bot_action(response)
+    #save_bot_action(response)
     print(content)
     return content
 
