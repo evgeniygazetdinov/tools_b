@@ -8,36 +8,17 @@ import datetime
 import threading
 from multiprocessing import Process,current_process,cpu_count,active_children
 from lib.sessions import Session
+from lib.session_methods import check_user_actions
 from lib.const import  URL
 from lib.protect import do_some_protection
 from lib.backend_methods import change_password, user_exist, create_user, upload_photo_from_telegram_and_get_path,do_login, upload_photo_on_server
 from lib.base import  (clean_patern, send_message, get_url, find_user_message_chat,
                   div_password, build_keyboard, get_json_from_url,get_last_update_id,
-                  get_updates, get_updates, get_last_chat_id_and_text, clean_history)
+                  get_updates, get_updates, get_last_chat_id_and_text, telegram_clean_history)
 login_items = ['my_uploads', 'upload_image', 'change_password', 'instructions','end_sessions']
 menu_items = ['create_profile','login','help']
 password_item = ['put password']
 
-
-
-
-
-
-def check_user_actions(cur_user,session):
-    #just call and wait 60 second /if he passed clean history and clean session
-    minute = 60
-    begin = 0
-    while session.get_user_info_value('pushed_button'):
-        begin+=1
-        time.sleep(1)
-        print(begin)
-        #check_user_folder
-        if begin  == minute:
-            print('time is over')
-            send_message('60 second passed',session.get_user_info_value('cur_chat') )
-            clean_history(session.get_user_info_value('message_id'),session.get_user_info_value('cur_chat'))
-            session.clean_session()
-            break
 
 
 def check_telegram_updates():
@@ -63,8 +44,8 @@ def check_telegram_updates():
                         p.terminate()
                     user_session.update_user_info('pushed_button',True)
                     #BEGIN new counter user action
-                    thread2 = Process(name ="user_check",target=check_user_actions,args = (cur_user, user_session))
-                    thread2.start()
+                    #thread2 = Process(name ="user_check",target=check_user_actions,args = (cur_user, user_session))
+                    #thread2.start()
                 #message-handlers
                 if cur_message == '/start':
                     send_message("hello this photohosting bot please create profile or login",cur_chat)

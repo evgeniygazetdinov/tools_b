@@ -1,45 +1,27 @@
-import glob
-import os
-from lib.base import send_message
-import json
+import time 
+from lib.base import send_message,telegram_clean_history 
+#file has method for be executed with session/ each push button will  be check user time and store message id for clean history
 
 
-PATH = os.getcwd()+'/session'
 
 
-def looking_for_changes():
-    last_updaten = check_last_updated_file()
-        #check algoritm there last string changes if change file
-       
 
 
-def json_to_dict(path):
-    with open(path) as json_file:
-        data = json.load(json_file)
-        return data
 
 
-def check_last_updated_file():
-    #check_last_updated_folder
-    list_of_files = glob.glob(PATH+'/*') 
-    latest_file = max(list_of_files, key=os.path.getctime)
-    return latest_file
-
-
-def get_user_from_session():
-    file = check_last_updated_file()
-    user = os.path.basename(file)
-    return str(user)
-
-
-def get_action_from_session(user):
-    user_path = PATH+'/'+user+'/'+user+'.json'
-    user_dict = json_to_dict(user_path)
-    return user_dict
-    
-def get_current_chat():
-    pass
-
-
-def notify_user(chat):
-    pass    
+#executed on push button
+def check_user_actions(cur_user,session):
+    #just call and wait 60 second /if he passed clean history and clean session
+    minute = 60
+    begin = 0
+    while session.get_user_info_value('pushed_button'):
+        begin+=1
+        time.sleep(1)
+        print(begin)
+        #check_user_folder
+        if begin  == minute:
+            print('time is over')
+            send_message('60 second passed',session.get_user_info_value('cur_chat') )
+            clean_history(session.get_user_info_value('message_id'),session.get_user_info_value('cur_chat'))
+            session.clean_session()
+            break
