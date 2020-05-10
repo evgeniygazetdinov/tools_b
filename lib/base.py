@@ -1,6 +1,7 @@
 import urllib
 import re
 from lib.const import URL, token
+from lib.history import save_bot_action
 import requests
 import json
 import time 
@@ -39,6 +40,11 @@ def save_bot_action(content):
                 result = data['user'].append(message)
                 store_bot_action(result)
                 print('action saved')
+
+
+
+
+ 
 
 
 
@@ -187,7 +193,8 @@ def delete_message(chat_id,message_id):
     response = requests.get(url)
     print(response.status_code)
 
-def clean_history(message_id,chat_id):
+
+def telegram_clean_history(message_id,chat_id):
     for id in range(message_id,0,1):
         delete_message(id,chat_id)
         print(id)
