@@ -44,12 +44,6 @@ def save_bot_action(content):
 
 
 
- 
-
-
-
-
-
 def clean_patern(cur_message):
     #refactor after
     link = ''
@@ -183,8 +177,6 @@ def get_last_update_id(updates):
     for update in updates["result"]:
         update_ids.append(int(update["update_id"]))
     return max(update_ids)
-
-
 
 
 

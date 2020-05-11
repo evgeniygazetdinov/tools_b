@@ -31,7 +31,6 @@ def do_login(username,password,cur_chat,show_user_content=False):
         s.auth = (username, password)
         r = s.get(url)
         print(r.status_code)
-        print(r.content)
         if r.status_code == 201 or r.status_code ==200:
             send_message('you authenticated',cur_chat)
             if show_user_content:
@@ -50,7 +49,8 @@ def upload_photo_on_server(filename,username,password):
         with requests.Session() as s:
             s.auth = (username, password)
             r = s.post(BACKEND_URL+'photo/upload/',files=files)
-            return True if response.status_code == 201 or response.status_code == 200 else False
+            return True if r.status_code == 201 or r.status_code == 200 else False
+
 
 
 
@@ -61,7 +61,8 @@ def get_my_uploaded_photos():
         r = s.post(url)
         print(r.status_code)
         print(r.content)
-        return True if response.status_code == 201 or response.status_code == 200 else False
+        return True if r.status_code == 201 or r.status_code == 200 else False
+
 
 
 
