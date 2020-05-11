@@ -9,9 +9,37 @@ import os
 
 menu_items = ['create_profile','login','help']
 get_file = 'https://api.telegram.org/bot/getFile?file_id='
-
+path =os.getcwd()+'/session/bot_action.json'
  
 
+
+
+def store_bot_action(result):
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(result, f, ensure_ascii=False, indent=4)
+
+
+def get_data(user):
+    if os.exist(path):
+        with open(path) as json_file:
+            data = json.load(json_file)
+    else:
+        data = {user:[]}
+        return data
+
+
+def save_bot_action(content):
+    content = content.json()
+    if len(content["result"]) != 0:
+        cur_result = content["result"][0]
+        if 'message' in cur_result:
+            if cur_result['message']['from']['is_bot'] :
+                user = cur_result['chat']['username']
+                message = content['result']['message_id']
+                data = get_data(user)
+                result = data['user'].append(message)
+                store_bot_action(result)
+                print('action saved')
 
 
 
@@ -152,12 +180,11 @@ def get_last_update_id(updates):
 
 
 
-
-
 def delete_message(chat_id,message_id):
     url = URL + '/deletemessage?message_id={1}&chat_id={2}'.format(message_id, chat_id)
     response = requests.get(url)
     print(response.status_code)
+
 
 def telegram_clean_history(message_id,chat_id):
     for id in range(message_id,0,1):

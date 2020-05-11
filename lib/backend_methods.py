@@ -53,6 +53,7 @@ def upload_photo_on_server(filename,username,password):
 
 
 
+
 def get_my_uploaded_photos():
     url = BACKEND_URL+'user/check_current/'
     with requests.session() as s:
@@ -61,6 +62,7 @@ def get_my_uploaded_photos():
         print(r.status_code)
         print(r.content)
         return True if r.status_code == 201 or r.status_code == 200 else False
+
 
 
 
