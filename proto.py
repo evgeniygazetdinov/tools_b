@@ -44,7 +44,7 @@ def check_telegram_updates():
                         p.terminate()
                     user_session.update_user_info('pushed_button',True)
                     #BEGIN new counter user action
-                    thread2 = Process(name ="user_check",target=check_user_actions,args = (cur_user, user_session))
+                    thread2 = Process(name ="{}".format(cur_user),target=check_user_actions,args = (cur_user, user_session))
                     thread2.start()
                 #message-handlers
                 if cur_message == '/start':
