@@ -65,7 +65,7 @@ def get_url(url):
     response = requests.get(url)
     content = response.content.decode("utf8")
     #save bot action here
-    #save_bot_action(response)
+    save_bot_action(response)
     print(content)
     return content
 
@@ -94,7 +94,11 @@ def check_it_is_password(password,cur_chat):
 def find_user_message_chat(results):
     cur_result = results[0]
     if 'message' in cur_result:
-        cur_user = cur_result['message']['chat']['username']
+        chat = cur_result['message']['chat']
+        if 'username' in chat:
+            cur_user = chat['username']
+        else:
+            cur_user = chat['first_name']+chat['last_name']
         cur_chat = cur_result['message']["chat"]["id"]
         message_id = cur_result['message']['message_id']
         if 'sticker' in cur_result['message']:
@@ -153,12 +157,12 @@ def get_last_update_id(updates):
 
 
 
-
+"""
 def delete_message(chat_id,message_id):
     url = URL + '/deletemessage?message_id={1}&chat_id={2}'.format(message_id, chat_id)
     response = requests.get(url)
     print(response.status_code)
-
+"""
 def telegram_clean_history(message_id,chat_id):
     for id in range(message_id,0,1):
         delete_message(id,chat_id)
