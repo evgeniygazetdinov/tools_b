@@ -1,18 +1,1 @@
-{
-    "changer": {
-        "old_password": false,
-        "new_password": false
-    },
-    "password": false,
-    "pushed_button": true,
-    "last_action": "2020-05-10 07:16",
-    "cur_chat": 324598071,
-    "username": "n_Set",
-    "state": {
-        "change_password": false,
-        "upload": false,
-        "login": false,
-        "created": "in_process"
-    },
-    "message_id": 5853
-}
+

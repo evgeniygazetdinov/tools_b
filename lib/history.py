@@ -28,12 +28,6 @@ def get_data_by_path(user,is_user=False):
         return data
 
 
-
-
-
-
-
-
 def store_action(path,result):
     with open(path, 'w', encoding='utf-8') as f:
         json.dump(result, f, ensure_ascii=False, indent=4)
@@ -96,8 +90,6 @@ def extract_ids(username):
             for message_id in user_data[username].values():
                 message_ids.append(message_id)
     return list(set(message_ids))
-
-
 
 
 def create_links_for_delete(session,username):
