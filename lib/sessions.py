@@ -17,7 +17,8 @@ class Session(object):
         #check_folder
         #exists load 
         #else create
-        if os.path.exists(os.getcwd()+'/session/'+self.username):
+        self.user_file_path = os.getcwd()+'/session/'+self.username+'/'+self.username+'.json'
+        if os.path.exists(self.user_file_path):
             self.user_folder = os.getcwd()+'/session/'+self.username
             self.user_info = self.get_session_details()
             self.save_user_info()
@@ -62,7 +63,8 @@ class Session(object):
             json.dump(self.user_info, f, ensure_ascii=False, indent=4)
 
     def get_session_details(self):
-        with open(self.user_folder +'/{}.json'.format(self.username)) as json_file:
+        user_session_path =  self.user_folder +'/{}.json'.format(self.username)
+        with open(user_session_path) as json_file:
             data = json.load(json_file)
             return data
 

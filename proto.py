@@ -44,8 +44,8 @@ def check_telegram_updates():
                         p.terminate()
                     user_session.update_user_info('pushed_button',True)
                     #BEGIN new counter user action
-                    #thread2 = Process(name ="user_check",target=check_user_actions,args = (cur_user, user_session))
-                    #thread2.start()
+                    thread2 = Process(name ="user_check",target=check_user_actions,args = (cur_user, user_session))
+                    thread2.start()
                 #message-handlers
                 if cur_message == '/start':
                     send_message("hello this photohosting bot please create profile or login",cur_chat)
@@ -185,8 +185,8 @@ def check_telegram_updates():
             time.sleep(0.5)
     
 def main_flow():
-    check_telegram_updates()
-
+    new_user = threading.Thread(name ="check_telegram_updates",target=check_telegram_updates)
+    new_user.start()
       
     
 
