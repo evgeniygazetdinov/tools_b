@@ -48,6 +48,11 @@ def save_bot_action(content):
 
 
 
+ 
+
+
+
+
 
 def clean_patern(cur_message):
     #refactor after

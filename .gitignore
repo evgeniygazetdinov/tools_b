@@ -4,4 +4,5 @@ db.sqlite
 *.py.swp
 
 __pycache__/
-sessions/*
+sessions/**/*
+
