@@ -5,19 +5,21 @@ import aiohttp
 import asyncio
 
 #here save user and bot message id into file and methods for bring this
-path =os.getcwd()+'/session/bot_action.json'
 
 def get_path(user=False):
-    path =os.getcwd()+'/session/bot_action.json'
+    
     if user:
         path = os.getcwd()+'/session/{}/user_action.json'.format(user)
+    else:
+        path =os.getcwd()+'/session/bot_action.json'
     return path
 
-def path_for_user_or_bot(user,is_user=False):
+def path_for_user_or_bot(user,is_user):
+    print(is_user)
     return get_path(user) if is_user else get_path()
 
 def get_data_by_path(user,is_user=False):
-    path = path_for_user_or_bot(user,is_user=False)  
+    path = path_for_user_or_bot(user,is_user)  
     if os.path.exists(path):
         with open(path,'r') as json_file:
             data = json.load(json_file)
@@ -26,12 +28,6 @@ def get_data_by_path(user,is_user=False):
         data = {user:[]}
         store_action(path,data)
         return data
-
-
-
-
-
-
 
 
 def store_action(path,result):
@@ -49,6 +45,7 @@ def save_bot_action(content):
         #it's bot action 
         if 'message_id' in cur_result:
             if cur_result['from']['is_bot'] :
+                path = get_path()
                 if 'username' in cur_result['chat']:
                     user = cur_result['chat']['username']
                 else:
@@ -62,6 +59,7 @@ def save_bot_action(content):
                 else:
                     print(data)
                     data[user]=[]
+                    
                     store_action(path,data)
         elif  isinstance(content['result'], list):
         #it's user
@@ -73,6 +71,7 @@ def save_bot_action(content):
                     user = from_['username']
                 else:
                     user = from_['first_name']+from_['last_name']
+                path = get_path(user)
                 data = get_data_by_path(user,is_user=True)
                 if user in data:
                     data[user].append(message)
