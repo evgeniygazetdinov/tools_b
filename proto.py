@@ -48,6 +48,7 @@ def check_telegram_updates():
                         if p.name in active_users['users']:
                              if p.name == cur_user:
                                 p.terminate()
+                                remove_active_users(cur_user)
                         else:
                             continue
                     user_session.update_user_info('pushed_button',True)

@@ -34,9 +34,11 @@ def get_data_by_path(user,is_user=False):
 
 def store_action(path,result):
     if not os.path.exists(path):
-        dir = os.path.split(path)
-        os.makedirs(str(dir[0]))
-        with open(path, 'w'): pass
+        not_exist_dir = os.path.split(path)
+        if not os.path.exists(not_exist_dir[0]):
+            #create_not_exists_folder
+            os.makedirs(str(not_exist_dir[0]))
+        #creating not exists file
     with open(path, 'w', encoding='utf-8') as f:
         json.dump(result, f, ensure_ascii=False, indent=4)
 
@@ -110,9 +112,9 @@ def extract_ids(username):
     user_path, bot_path, user_data, bot_data = get_data_and_paths(username)
     if username in bot_data:
         if username in user_data:
-            for message_id in bot_data[username].values():
+            for message_id in bot_data[username]:
                 message_ids.append(message_id)
-            for message_id in user_data[username].values():
+            for message_id in user_data[username]:
                 message_ids.append(message_id)
     return list(set(message_ids))
 
@@ -121,10 +123,10 @@ def extract_ids(username):
 
 def create_links_for_delete(session,username):
     links = []
-    chat_id= session.get_user_info_value('')
+    chat_id= session.get_user_info_value('cur_chat')
     message_ids = extract_ids(username)
-    for message_id in message_ids:
-        links.append(URL+'/deletemessage?message_id={1}&chat_id={2}'.format(message_id,chat_id))
+    for message_id in list(message_ids):
+        links.append(URL+'/deletemessage?message_id={}&chat_id={}'.format(message_id,chat_id))
     return links
 
 
@@ -134,9 +136,9 @@ async def delete_message(url):
       async with session.get(url) as resp:
           text = await resp.status_code
           print('Url{url}, status {text}'.format(url,text))
+          await asyncio.sleep(0.2)
 
-
-def clean_history():
+def clean_history(session,username):
     links = create_links_for_delete(session,username)
     futures = [delete_message(link) for link in links ]
     loop = asyncio.get_event_loop()
