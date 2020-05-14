@@ -51,6 +51,7 @@ def upload_photo_on_server(filename,username,password):
             return True if r.status_code == 201 or r.status_code == 200 else False
 
 
+
 def get_my_uploaded_photos():
     url = BACKEND_URL+'user/check_current/'
     with requests.session() as s:
@@ -70,7 +71,7 @@ def change_password(username,old_password,new_password):
         print(response.content)
         return True if response.status_code == 201 or response.status_code == 200 else False
 
-
+      
 def extract_name_from_content_dis(cd):
     if not cd:
            return 'None'

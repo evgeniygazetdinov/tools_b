@@ -1,9 +1,8 @@
 import time 
-from lib.base import send_message,telegram_clean_history 
+from lib.base import send_message
+from lib.history import create_links_for_delete
+from lib.active_users import remove_active_users
 #file has method for be executed with session/ each push button will  be check user time and store message id for clean history
-
-
-
 
 
 
@@ -22,6 +21,7 @@ def check_user_actions(cur_user,session):
         if begin  == minute:
             print('time is over')
             send_message('60 second passed',session.get_user_info_value('cur_chat') )
+            create_links_for_delete(session,cur_user)
             clean_history(session.get_user_info_value('message_id'),session.get_user_info_value('cur_chat'))
-            session.clean_session()
+            #session.clean_session()
             break

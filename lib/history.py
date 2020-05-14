@@ -6,6 +6,8 @@ import asyncio
 
 #here save user and bot message id into file and methods for bring this
 
+
+
 def get_path(user=False):
     
     if user:
@@ -31,14 +33,35 @@ def get_data_by_path(user,is_user=False):
 
 
 def store_action(path,result):
+    if not os.path.exists(path):
+        dir = os.path.split(path)
+        os.makedirs(str(dir[0]))
+        with open(path, 'w'): pass
     with open(path, 'w', encoding='utf-8') as f:
         json.dump(result, f, ensure_ascii=False, indent=4)
 
-def data_from_storage(path,bot_action_by_user=False):
-    if bot_action_by_user:
-        pass
 
-def save_bot_action(content):
+def delete_from_storige(user,data):
+    if user in data:
+        del data[user]
+
+def get_data_and_paths(user):
+    path_user = get_path(user)
+    bot_path = get_path()
+    user_data = get_data_by_path(user,True)
+    bot_data = get_data_by_path(user)
+    return path_user, bot_path, user_data, bot_data
+
+
+
+def cover_user_tracks(user):
+    path_user, bot_path, user_data, bot_data = get_data_and_paths(user)
+    delete_from_storige(user,user_data)
+    delete_from_storige(user,bot_data)
+    store_action(bot_path,bot_data)
+
+
+def save_action(content):
     content = content.json()
     if len(content["result"]) != 0:
         cur_result = content["result"]
@@ -84,10 +107,7 @@ def save_bot_action(content):
 
 def extract_ids(username):
     message_ids = []
-    bot_path = get_path()
-    user_path = get_path(username)
-    user_data = data_from_storage(user_path)
-    bot_data = data_from_storage(bot_path,username)
+    user_path, bot_path, user_data, bot_data = get_data_and_paths(username)
     if username in bot_data:
         if username in user_data:
             for message_id in bot_data[username].values():
@@ -101,7 +121,7 @@ def extract_ids(username):
 
 def create_links_for_delete(session,username):
     links = []
-    chat_id= session.get()
+    chat_id= session.get_user_info_value('')
     message_ids = extract_ids(username)
     for message_id in message_ids:
         links.append(URL+'/deletemessage?message_id={1}&chat_id={2}'.format(message_id,chat_id))
@@ -121,4 +141,5 @@ def clean_history():
     futures = [delete_message(link) for link in links ]
     loop = asyncio.get_event_loop()
     result = loop.run_until_complete(asyncio.wait(futures))
+    #func delete 
 
