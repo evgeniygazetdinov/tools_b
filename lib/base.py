@@ -10,11 +10,6 @@ import os
 menu_items = ['create_profile','login','help']
 get_file = 'https://api.telegram.org/bot/getFile?file_id='
 
- 
-
-
-
-
 
 def clean_patern(cur_message):
     #refactor after

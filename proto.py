@@ -195,6 +195,7 @@ def check_telegram_updates():
 def main_flow():
     new_user = threading.Thread(name ="check_telegram_updates",target=check_telegram_updates)
     new_user.start()
+
       
     
 
