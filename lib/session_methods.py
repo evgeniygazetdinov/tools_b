@@ -1,14 +1,8 @@
 import time 
 from lib.base import send_message
 from lib.history import create_links_for_delete
+from lib.active_users import remove_active_users
 #file has method for be executed with session/ each push button will  be check user time and store message id for clean history
-
-def active_users(cur_user):
-    #file_not_exists create
-    # get info from file
-    # if user not active users add
-    # if in active_user
-
 
 
 

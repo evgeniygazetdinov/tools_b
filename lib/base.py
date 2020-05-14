@@ -169,3 +169,14 @@ def telegram_clean_history(message_id,chat_id):
         print(id)
         time.sleep(0.1)
 
+
+def create_dir_for_not_exists_file(active_users_path):
+    if not os.path.exists(active_users_path):
+        not_exist_dir = os.path.split(active_users_path)
+        if not os.path.exists(not_exist_dir[0]):
+            #create_not_exists_folder
+            os.makedirs(str(not_exist_dir[0]))
+        #creating not exists file
+        with open(active_users_path, 'w', encoding='utf-8') as f:
+            json.dump( {'users':[]}, f, ensure_ascii=False, indent=4)
+        

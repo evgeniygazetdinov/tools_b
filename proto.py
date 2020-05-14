@@ -11,6 +11,7 @@ from lib.sessions import Session
 from lib.session_methods import check_user_actions
 from lib.const import  URL
 from lib.protect import do_some_protection
+from lib.active_users import get_active_users, save_users_state, push_active_users, remove_active_users
 from lib.backend_methods import change_password, user_exist, create_user, upload_photo_from_telegram_and_get_path,do_login, upload_photo_on_server
 from lib.base import  (clean_patern, send_message, get_url, find_user_message_chat,
                   div_password, build_keyboard, get_json_from_url,get_last_update_id,
@@ -34,14 +35,21 @@ def check_telegram_updates():
                 #init section
                 last_update_id = get_last_update_id(updates) + 1
                 cur_user, cur_chat, cur_message,message_id = find_user_message_chat(updates['result'])
+                push_active_users(cur_user)
                 login_keyboard = build_keyboard(login_items)
                 menu_keyboard = build_keyboard(menu_items)
                 user_session = Session(cur_user,cur_chat,message_id)
                 if cur_message:
                     #remove active threads before
                     #here save user_message_info session
+                    active_users = get_active_users()
                     for p in active_children():
-                        p.terminate()
+                       
+                        if p.name in active_users['users']:
+                             if p.name == cur_user:
+                                p.terminate()
+                        else:
+                            continue
                     user_session.update_user_info('pushed_button',True)
                     #BEGIN new counter user action
                     thread2 = Process(name ="{}".format(cur_user),target=check_user_actions,args = (cur_user, user_session))
