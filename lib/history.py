@@ -61,7 +61,7 @@ def cover_user_tracks(user):
     store_action(bot_path,bot_data)
 
 
-def save_bot_action(content):
+def save_action(content):
     content = content.json()
     if len(content["result"]) != 0:
         cur_result = content["result"]

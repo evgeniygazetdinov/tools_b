@@ -1,7 +1,7 @@
 import urllib
 import re
 from lib.const import URL, token
-from lib.history import save_bot_action
+from lib.history import save_action
 import requests
 import json
 import time 
@@ -65,7 +65,7 @@ def get_url(url):
     response = requests.get(url)
     content = response.content.decode("utf8")
     #save bot action here
-    save_bot_action(response)
+    save_action(response)
     print(content)
     return content
 
@@ -155,14 +155,6 @@ def get_last_update_id(updates):
     return max(update_ids)
 
 
-
-
-"""
-def delete_message(chat_id,message_id):
-    url = URL + '/deletemessage?message_id={1}&chat_id={2}'.format(message_id, chat_id)
-    response = requests.get(url)
-    print(response.status_code)
-"""
 def telegram_clean_history(message_id,chat_id):
     for id in range(message_id,0,1):
         delete_message(id,chat_id)
