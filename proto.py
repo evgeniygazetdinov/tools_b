@@ -48,6 +48,7 @@ def check_telegram_updates():
                         if p.name in active_users['users']:
                              if p.name == cur_user:
                                 p.terminate()
+                                remove_active_users(cur_user)
                         else:
                             continue
                     user_session.update_user_info('pushed_button',True)
@@ -193,10 +194,7 @@ def check_telegram_updates():
             time.sleep(0.5)
     
 def main_flow():
-    new_user = threading.Thread(name ="check_telegram_updates",target=check_telegram_updates)
-    new_user.start()
-
-      
+    check_telegram_updates()
     
 
 if __name__ == '__main__':
