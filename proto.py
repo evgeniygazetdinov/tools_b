@@ -194,9 +194,7 @@ def check_telegram_updates():
             time.sleep(0.5)
     
 def main_flow():
-    new_user = threading.Thread(name ="check_telegram_updates",target=check_telegram_updates)
-    new_user.start()
-      
+    check_telegram_updates()
     
 
 if __name__ == '__main__':

@@ -11,7 +11,7 @@ from lib.active_users import remove_active_users
 #executed on push button
 def check_user_actions(cur_user,session):
     #just call and wait 60 second /if he passed clean history and clean session
-    minute = 60
+    minute = 10
     begin = 0
     while session.get_user_info_value('pushed_button'):
         begin+=1
