@@ -4,10 +4,16 @@ from lib.const import URL
 import aiohttp
 import asyncio
 import requests
+import time
 #here save user and bot message id into file and methods for bring this
 
+
+
+
+
+
+
 def get_path(user=False):
-    
     if user:
         path = os.getcwd()+'/session/{}/user_action.json'.format(user)
     else:
@@ -15,7 +21,6 @@ def get_path(user=False):
     return path
 
 def path_for_user_or_bot(user,is_user):
-    print(is_user)
     return get_path(user) if is_user else get_path()
 
 def get_data_by_path(user,is_user=False):
@@ -63,45 +68,50 @@ def cover_user_tracks(user):
 
 def save_action(content):
     content = content.json()
-    if len(content["result"]) != 0:
-        cur_result = content["result"]
-        #it's bot action 
-        if 'message_id' in cur_result:
-            if cur_result['from']['is_bot'] :
-                path = get_path()
-                if 'username' in cur_result['chat']:
-                    user = cur_result['chat']['username']
-                else:
-                    user = cur_result['chat']['first_name']+cur_result['chat']['last_name']
-                message = content['result']['message_id']
-                data = get_data_by_path(user)
-                if user in data:
-                    data[user].append(message)
-                    store_action(path,data)
-                    print('store bot action')
-                else:
-                    print(data)
-                    data[user]=[]
-                    
-                    store_action(path,data)
-        elif  isinstance(content['result'], list):
-        #it's user
-            res = content['result'][0]
-            if  res["message"]["from"]["is_bot"] == False:
-                message =res['message']['message_id']
-                from_ = res['message']['from']
-                if 'username' in from_:
-                    user = from_['username']
-                else:
-                    user = from_['first_name']+from_['last_name']
-                path = get_path(user)
-                data = get_data_by_path(user,is_user=True)
-                if user in data:
-                    data[user].append(message)
-                else:
-                    data[user] = []
-                store_action(path,data)
-                print('store user action')
+    if 'result' in content:
+        if len(content["result"]) != 0:
+            cur_result = content["result"]
+            #it's bot action 
+            if 'message_id' in cur_result:
+                if cur_result['from']['is_bot'] :
+                    path = get_path()
+                    if 'username' in cur_result['chat']:
+                        user = cur_result['chat']['username']
+                    else:
+                        user = cur_result['chat']['first_name']+cur_result['chat']['last_name']
+                    message = content['result']['message_id']
+                    data = get_data_by_path(user)
+                    if user in data:
+                        data[user].append(message)
+                        store_action(path,data)
+                        print('store bot action')
+                    else:
+                        print(data)
+                        data[user]=[]
+                        
+                        store_action(path,data)
+            elif  isinstance(content['result'], list):
+            #it's user
+                res = content['result'][0]
+                if 'message' in res:
+                    if  res["message"]["from"]["is_bot"] == False:
+                        message =res['message']['message_id']
+                        from_ = res['message']['from']
+                        if 'username' in from_:
+                            user = from_['username']
+                        else:
+                            user = from_['first_name']+from_['last_name']
+                        path = get_path(user)
+                        data = get_data_by_path(user,is_user=True)
+                        if user in data:
+                            data[user].append(message)
+                        else:
+                            data[user] = []
+                        store_action(path,data)
+                        print('store user action')
+    else:
+        pass
+
 
 
 
@@ -114,8 +124,7 @@ def extract_ids(username):
                 message_ids.append(message_id)
             for message_id in user_data[username]:
                 message_ids.append(message_id)
-
-    return list(message_ids)
+    return message_ids
 
 
 
@@ -130,34 +139,37 @@ def create_links_for_delete(session,username):
 
 
 
-async def delete_message(url):
-  async with aiohttp.ClientSession() as session:
-      async with session.get(url) as resp:
-          text = await resp.text
-          print('Url{url}, status {text}'.format(url,text))
-          await asyncio.sleep(0.2)
-
-def clean_history(session,username):
-    links = create_links_for_delete(session,username)
-    import asyncio
-    import time
-    import aiohttp
-
-
-    async def download_site(session, url):
+async def do_request(session, url):
         async with session.get(url) as response:
             print("Read {0} from {1}".format(response.status_code, url))
 
 
-    async def download_all_sites(sites):
-        async with aiohttp.ClientSession() as session:
-            tasks = []
-            for url in sites:
-                task = asyncio.ensure_future(download_site(session, url))
-                tasks.append(task)
-            await asyncio.gather(*tasks, return_exceptions=True)
+async def remove_messages(sites):
+    async with aiohttp.ClientSession() as session:
+        tasks = []
+        for url in sites:
+            task = asyncio.ensure_future(do_request(session, url))
+            tasks.append(task)
+        await asyncio.gather(*tasks, return_exceptions=True)
+
+def clean_history(session,username):
+    links = create_links_for_delete(session,username)
     start_time = time.time()
-    asyncio.get_event_loop().run_until_complete(download_all_sites(links))
+    asyncio.get_event_loop().run_until_complete(remove_messages(links))
     duration = time.time() - start_time
     print(f"Downloaded {len(links)} sites in {duration} seconds")
    
+
+
+def take_all_bot_actions(path):
+    with open(path,'r') as json_file:
+        data = json.load(json_file)
+        return  data if data is not None else store_action(path,{user:[]});{user:[]}
+
+#remove_from_bot action file
+def delete_user_ids_from_bot_actions(user):
+    path = get_path()
+    bot_data = take_all_bot_actions(path)
+    if user in bot_data:
+        bot_data.pop(user, None)
+        store_action(path,bot_data)

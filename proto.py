@@ -1,4 +1,4 @@
-
+import os
 import requests
 import time
 import urllib
@@ -198,8 +198,14 @@ def main_flow():
     
 
 if __name__ == '__main__':
-    do_some_protection()
-    main_flow()
+    #add some debug option
+    if len(sys.argv) >1:
+        if sys.argv[1] == '--debug':
+            do_some_protection()
+            main_flow()
+    else:
+        main_flow()
+    
 
 
 

@@ -61,6 +61,7 @@ def get_my_uploaded_photos():
         print(r.content)
         return True if r.status_code == 201 or r.status_code == 200 else False
 
+
       
 def change_password(username,old_password,new_password):
     url = BACKEND_URL+'user/update/'
@@ -71,7 +72,7 @@ def change_password(username,old_password,new_password):
         print(response.content)
         return True if response.status_code == 201 or response.status_code == 200 else False
 
-      
+
 def extract_name_from_content_dis(cd):
     if not cd:
            return 'None'
