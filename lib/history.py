@@ -4,10 +4,11 @@ from lib.const import URL
 import aiohttp
 import asyncio
 import requests
+import time
 #here save user and bot message id into file and methods for bring this
 
+
 def get_path(user=False):
-    
     if user:
         path = os.getcwd()+'/session/{}/user_action.json'.format(user)
     else:
@@ -114,8 +115,7 @@ def extract_ids(username):
                 message_ids.append(message_id)
             for message_id in user_data[username]:
                 message_ids.append(message_id)
-
-    return list(message_ids)
+    return message_ids
 
 
 
@@ -130,34 +130,23 @@ def create_links_for_delete(session,username):
 
 
 
-async def delete_message(url):
-  async with aiohttp.ClientSession() as session:
-      async with session.get(url) as resp:
-          text = await resp.text
-          print('Url{url}, status {text}'.format(url,text))
-          await asyncio.sleep(0.2)
-
-def clean_history(session,username):
-    links = create_links_for_delete(session,username)
-    import asyncio
-    import time
-    import aiohttp
-
-
-    async def download_site(session, url):
+async def do_request(session, url):
         async with session.get(url) as response:
             print("Read {0} from {1}".format(response.status_code, url))
 
 
-    async def download_all_sites(sites):
-        async with aiohttp.ClientSession() as session:
-            tasks = []
-            for url in sites:
-                task = asyncio.ensure_future(download_site(session, url))
-                tasks.append(task)
-            await asyncio.gather(*tasks, return_exceptions=True)
+async def remove_messages(sites):
+    async with aiohttp.ClientSession() as session:
+        tasks = []
+        for url in sites:
+            task = asyncio.ensure_future(do_request(session, url))
+            tasks.append(task)
+        await asyncio.gather(*tasks, return_exceptions=True)
+
+def clean_history(session,username):
+    links = create_links_for_delete(session,username)
     start_time = time.time()
-    asyncio.get_event_loop().run_until_complete(download_all_sites(links))
+    asyncio.get_event_loop().run_until_complete(remove_messages(links))
     duration = time.time() - start_time
     print(f"Downloaded {len(links)} sites in {duration} seconds")
    
