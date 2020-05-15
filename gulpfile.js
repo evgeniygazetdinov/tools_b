@@ -1,10 +1,13 @@
 var gulp = require('gulp');
 var rsync = require('gulp-rsync');
 
-
+var filesToMove = [
+        './proto.py',
+        './lib/*'
+    ];
 
 function deploy(done) {
-  gulp.src('./*')
+  gulp.src(filesToMove)
     .pipe(rsync({
       root: '',
       hostname: 'root@199.192.21.240',

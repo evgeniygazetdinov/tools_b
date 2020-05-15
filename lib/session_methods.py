@@ -7,12 +7,13 @@ from lib.active_users import remove_active_users
 import requests
 import json
 import urllib
+import os
 menu_keyboard = {
     'one_time_keyboard': True,
     'keyboard': [ ['create_profile'], ['login'] ,['help']]
 }
 
-
+#so ugly
 def send_raw_message(text, chat_id, reply_markup=None):
     #text = urllib.parse.quote_plus(text)
     url = URL + "sendMessage"
@@ -20,12 +21,21 @@ def send_raw_message(text, chat_id, reply_markup=None):
     if reply_markup:
        data['reply_markup'] = json.dumps(reply_markup)
     response = requests.get(url,data)
+    #store raw response messageid
     context= response.json()
     if 'result' in context:
         mes_id = context['result']['message_id']
+        user = context['result']['chat']['username']
         path = get_path()
-        store_action(path,mes_id)
-        print('stored row message')
+        if os.path.exists(path):
+            with open(path,'r') as json_file:
+                data = json.load(json_file)
+        #data-dict empty
+        if (not data):
+            data[user]=[mes_id]
+        else:
+            data[user].append(mes_id)
+        store_action(path,data)
 
 
 
