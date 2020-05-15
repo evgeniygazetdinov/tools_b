@@ -199,8 +199,13 @@ def main_flow():
 
 if __name__ == '__main__':
     #add some debug option
-    do_some_protection()
-    main_flow()
+    if len(sys.argv) >1:
+        if sys.argv[1] == '--debug':
+            do_some_protection()
+            main_flow()
+    else:
+        main_flow()
+    
 
 
 
