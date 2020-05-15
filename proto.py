@@ -39,6 +39,7 @@ def check_telegram_updates():
                 login_keyboard = build_keyboard(login_items)
                 menu_keyboard = build_keyboard(menu_items)
                 user_session = Session(cur_user,cur_chat,message_id)
+                print(user_session.__dict__)
                 if cur_message:
                     #remove active threads before
                     #here save user_message_info session
