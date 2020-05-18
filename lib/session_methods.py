@@ -35,17 +35,21 @@ def send_raw_message(text, chat_id, reply_markup=None):
                 data = json.load(json_file)
         #data-dict empty
         if (not data):
+            
             data[user]=[mes_id]
             print('*'*10)
             print(data)
             print(mes_id)
             print('*'*10)
         else:
-            print('*'*10)
-            data[user].append(mes_id)
-            print(data)
-            print(mes_id)
-            print('*'*10)
+            if user not in data:
+                data[user]=[mes_id]
+                print('*'*10)
+            else:
+                data[user].append(mes_id)
+                print(data)
+                print(mes_id)
+                print('*'*10)
            
         store_action(path,data)
 
@@ -59,7 +63,7 @@ def send_raw_message(text, chat_id, reply_markup=None):
 #executed on push button
 def check_user_actions(cur_user,session):
     #just call and wait 60 second /if he passed clean history and clean session
-    minute = 10
+    minute = 60
     begin = 0
     while session.get_user_info_value('pushed_button'):
         begin+=1
