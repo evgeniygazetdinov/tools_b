@@ -25,7 +25,10 @@ def send_raw_message(text, chat_id, reply_markup=None):
     context= response.json()
     if 'result' in context:
         mes_id = context['result']['message_id']
-        user = context['result']['chat']['username']
+        if 'username' in context['result']['chat']:
+            user = context['result']['chat']['username']
+        else:
+            user = context['result']['chat']['first_name'] + context['result']['chat']['last_name']
         path = get_path()
         if os.path.exists(path):
             with open(path,'r') as json_file:
@@ -33,8 +36,17 @@ def send_raw_message(text, chat_id, reply_markup=None):
         #data-dict empty
         if (not data):
             data[user]=[mes_id]
+            print('*'*10)
+            print(data)
+            print(mes_id)
+            print('*'*10)
         else:
+            print('*'*10)
             data[user].append(mes_id)
+            print(data)
+            print(mes_id)
+            print('*'*10)
+           
         store_action(path,data)
 
 
