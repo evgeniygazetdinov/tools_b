@@ -4,4 +4,8 @@ db.sqlite
 *.py.swp
 
 __pycache__/
-sessions/**/*
+session/
+node_modules/
+package-lock.json
+
+

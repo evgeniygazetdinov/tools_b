@@ -19,7 +19,8 @@ def get_path(user=False):
     else:
         path =os.getcwd()+'/session/bot_action.json'
     return path
-
+  
+  
 def path_for_user_or_bot(user,is_user):
     return get_path(user) if is_user else get_path()
 
@@ -86,9 +87,7 @@ def save_action(content):
                         store_action(path,data)
                         print('store bot action')
                     else:
-                        print(data)
                         data[user]=[]
-                        
                         store_action(path,data)
             elif  isinstance(content['result'], list):
             #it's user
@@ -133,7 +132,7 @@ def create_links_for_delete(session,username):
     links = []
     chat_id= session.get_user_info_value('cur_chat')
     message_ids = extract_ids(username)
-    for message_id in list(message_ids):
+    for message_id in message_ids:
         links.append(URL+'deletemessage?message_id={}&chat_id={}'.format(message_id,chat_id))
     return links
 
@@ -149,6 +148,7 @@ async def remove_messages(sites):
         tasks = []
         for url in sites:
             task = asyncio.ensure_future(do_request(session, url))
+            asyncio.sleep(0.1)
             tasks.append(task)
         await asyncio.gather(*tasks, return_exceptions=True)
 
@@ -157,7 +157,7 @@ def clean_history(session,username):
     start_time = time.time()
     asyncio.get_event_loop().run_until_complete(remove_messages(links))
     duration = time.time() - start_time
-    print(f"Downloaded {len(links)} sites in {duration} seconds")
+    print(f"REMOVE {len(links)} messages in {duration} seconds")
    
 
 

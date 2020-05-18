@@ -30,6 +30,5 @@ def remove_active_users(user):
     users = get_active_users()
     if user in users:
         users['users'].remove(user)
-
     save_users_state(users)
         
