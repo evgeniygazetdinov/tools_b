@@ -20,7 +20,7 @@ def get_path(user=False):
         path =os.getcwd()+'/session/bot_action.json'
     return path
 
-
+  
 def path_for_user_or_bot(user,is_user):
     return get_path(user) if is_user else get_path()
 
@@ -44,9 +44,6 @@ def store_action(path,result):
             os.makedirs(str(not_exist_dir[0]))
         #creating not exists file
     with open(path, 'w', encoding='utf-8') as f:
-        print('*'*25)
-        print(result)
-        print('*'*25)
         json.dump(result, f, ensure_ascii=False, indent=4)
 
 

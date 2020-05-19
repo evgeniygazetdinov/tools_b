@@ -35,22 +35,12 @@ def send_raw_message(text, chat_id, reply_markup=None):
                 data = json.load(json_file)
         #data-dict empty
         if (not data):
-            
             data[user]=[mes_id]
-            print('*'*10)
-            print(data)
-            print(mes_id)
-            print('*'*10)
         else:
             if user not in data:
                 data[user]=[mes_id]
-                print('*'*10)
             else:
                 data[user].append(mes_id)
-                print(data)
-                print(mes_id)
-                print('*'*10)
-           
         store_action(path,data)
 
 
@@ -72,14 +62,11 @@ def check_user_actions(cur_user,session):
         #check_user_folder
         if begin  == minute:
             print('time is over')
-            send_message('60 second passed',session.get_user_info_value('cur_chat') )
-           
-           
+            send_message('60 second passed',session.get_user_info_value('cur_chat') )      
             clean_history(session,session.username)
             delete_user_ids_from_bot_actions(session.username)
             remove_active_users(session.username)
-            #remove_from_bot
-            
+            #remove_from_bot       
             send_raw_message('Choose your variant',session.get_user_info_value('cur_chat'),menu_keyboard)
             session.clean_session()
             
