@@ -9,17 +9,13 @@ import threading
 from multiprocessing import Process,current_process,cpu_count,active_children
 from lib.sessions import Session
 from lib.session_methods import check_user_actions
-from lib.const import  URL
+from lib.const import  URL, menu_items, login_items
 from lib.protect import do_some_protection
 from lib.active_users import get_active_users, save_users_state, push_active_users, remove_active_users
 from lib.backend_methods import change_password, user_exist, create_user, upload_photo_from_telegram_and_get_path,do_login, upload_photo_on_server
 from lib.base import  (clean_patern, send_message, get_url, find_user_message_chat,
                   div_password, build_keyboard, get_json_from_url,get_last_update_id,
                   get_updates, get_updates, get_last_chat_id_and_text, telegram_clean_history)
-login_items = ['my_uploads', 'upload_image', 'change_password', 'instructions','end_sessions']
-menu_items = ['регистрация','войти','помощь']
-password_item = ['put password']
-
 
 
 def check_telegram_updates():
@@ -140,13 +136,51 @@ def check_telegram_updates():
                             user_session.save_user_info()
                 ################menu without login###################################################
                 else:
-                    send_message('', cur_chat, menu_keyboard)
+                    send_message('выберите вариант', cur_chat, menu_keyboard)
                     if cur_message == 'регистрация':
                             send_message('Придумайте логин и введите логин', cur_chat)
                             user_session.update_state_user('created','in_process')
-                            user_session.user_info['profile']['username'] = 'in_process'
-                    elif  user_session.user_info['profile']['username'] == 'in_process':
-                            send_message('я тут', cur_chat)
+                            user_session.update_user_creditails('profile','username','in_process')
+
+                    if user_session.user_info['state']['created'] == 'in_process':
+
+                        if user_session.user_info['profile']['username'] == 'in_process':
+                                exist = user_exist(cur_message)
+                                if exist:
+                                    send_message('Пользователь с таким логином уже существует придумайте другое имя', cur_chat)
+                                else:
+                                    user_session.update_user_creditails('profile','username',cur_message)
+                                    send_message('Имя свободно', cur_chat)
+                                    send_message('Придумайте пароль не менее 8 символов, пароль не должен быть простым', cur_chat)
+                                    user_session.update_user_creditails('profile','password1','in_process')
+
+                        elif user_session.user_info['profile']['password1'] == 'in_process':
+                            if re.match(r'[A-Za-z0-9@#$%^&+=]{8,}', cur_message):
+                                send_message('Подтвердите пароль', cur_chat)
+                                user_session.update_user_creditails('profile','password1',cur_message)
+                                user_session.update_user_creditails('profile','password2','in_process')
+                            else:
+                                send_message('пароль либо слишком прост,либо не меньше 8 символов', cur_chat)
+                        elif user_session.user_info['profile']['password2'] == 'in_process':
+                            if re.match(r'[A-Za-z0-9@#$%^&+=]{8,}', cur_message) and user_session['profile']['password1'] == cur_message:
+                                send_message('Пароли совпадают', cur_chat)
+                                user_session.update_user_creditails('profile','password2',cur_message)
+                                user_session.update_state_user('created',True,cur_message)
+                                success = create_user(user_session.username,user_session.password)
+                                user_session.save_user_info()
+                                if success:
+                                    send_message('Вы успешно зарегистрированы.Что бы начать пользоваться ботом авторизуйтесь.', cur_chat)
+                                    user_session.update_state_user('created',True,password)
+                                    user_session.save_user_info()
+                                else:
+                                    send_message('Что то не так с сервером попробуйте позже'.format(cur_user), cur_chat)
+                                    user_session.save_user_info()
+
+
+                            else:
+                                send_message('пароль либо слишком прост,либо не меньше 8 символов', cur_chat)
+
+
 
 
             time.sleep(0.5)

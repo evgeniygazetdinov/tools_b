@@ -47,7 +47,16 @@ class Session(object):
         if password:
             self.user_info['password'] = password
         self.save_user_info()
-        print(self.user_info)
+
+    def update_user_creditails(self,place,check_place,value_for_place):
+        self.update_last_action()
+        self.user_info[place][check_place]=value_for_place
+        #if 'password2' != 'in_process' and 'password2' != False:
+            #flag for success user create
+            # self.username = self.user_info['profile']['username']
+            # self.password = self.user_info['profile']['password2']
+        self.save_user_info()
+
 
     def get_user_info_value(self,value):
         self.update_last_action()
