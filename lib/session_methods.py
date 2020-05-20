@@ -29,7 +29,6 @@ def send_raw_message(text, chat_id, reply_markup=None):
             user = context['result']['chat']['username']
         else:
             user = context['result']['chat']['first_name'] + context['result']['chat']['last_name']
-
         path = get_path()
         if os.path.exists(path):
             with open(path,'r') as json_file:
@@ -37,16 +36,11 @@ def send_raw_message(text, chat_id, reply_markup=None):
         #data-dict empty
         if (not data):
             data[user]=[mes_id]
-            print('*'*10)
-            print(data)
-            print(mes_id)
-            print('*'*10)
         else:
-            print('*'*10)
-            data[user].append(mes_id)
-            print(data)
-            print(mes_id)
-            print('*'*10)
+            if user not in data:
+                data[user]=[mes_id]
+            else:
+                data[user].append(mes_id)
         store_action(path,data)
 
 
@@ -59,7 +53,7 @@ def send_raw_message(text, chat_id, reply_markup=None):
 #executed on push button
 def check_user_actions(cur_user,session):
     #just call and wait 60 second /if he passed clean history and clean session
-    minute = 10
+    minute = 60
     begin = 0
     while session.get_user_info_value('pushed_button'):
         begin+=1
@@ -68,14 +62,11 @@ def check_user_actions(cur_user,session):
         #check_user_folder
         if begin  == minute:
             print('time is over')
-            send_message('60 second passed',session.get_user_info_value('cur_chat') )
-           
-           
+            send_message('60 second passed',session.get_user_info_value('cur_chat') )      
             clean_history(session,session.username)
             delete_user_ids_from_bot_actions(session.username)
             remove_active_users(session.username)
-            #remove_from_bot
-            
+            #remove_from_bot       
             send_raw_message('Choose your variant',session.get_user_info_value('cur_chat'),menu_keyboard)
             session.clean_session()
             
