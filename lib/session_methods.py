@@ -77,7 +77,7 @@ def check_user_actions(cur_user,session):
             remove_active_users(session.username)
             #remove_from_bot
             
-            send_raw_message('Choose your variant',session.get_user_info_value('cur_chat'),raw_menu_keyboard)
+            send_raw_message('выберите вариант',session.get_user_info_value('cur_chat'),raw_menu_keyboard)
             session.clean_session()
             
             break

@@ -8,8 +8,8 @@ import datetime
 import threading
 from multiprocessing import Process,current_process,cpu_count,active_children
 from lib.sessions import Session
-from lib.session_methods import check_user_actions
-from lib.const import  URL, menu_items, login_items
+from lib.session_methods import check_user_actions,send_raw_message
+from lib.const import  URL, menu_items, login_items, kick_out
 from lib.protect import do_some_protection
 from lib.active_users import get_active_users, save_users_state, push_active_users, remove_active_users
 from lib.backend_methods import change_password, user_exist, create_user, upload_photo_from_telegram_and_get_path,do_login, upload_photo_on_server
@@ -91,7 +91,7 @@ def check_telegram_updates():
                             if len(content['photos']) > 0:
                                 for photo in content['photos']:
                                     send_message("""
-                                                    id: яя{} 
+                                                    id: {} 
                                                     \n created: {} 
                                                     \n unique link:
                                                         {} 
@@ -136,13 +136,20 @@ def check_telegram_updates():
                             user_session.save_user_info()
                 ################menu without login###################################################
                 else:
+                    #new session checker menu
+                    #if user_session.user_info['state']['created'] == 'in_process':
+                    #    send_raw_message('выберите вариант', cur_chat, kick_out)
+                    #elif:
                     send_message('выберите вариант', cur_chat, menu_keyboard)
+                    #check flag if created выйти из регистрации выйти из меню логина
                     if cur_message == 'регистрация':
                             send_message('Придумайте логин и введите логин', cur_chat)
                             user_session.update_state_user('created','in_process')
                             user_session.update_user_creditails('profile','username','in_process')
+                    elif cur_message == 'выйти':
+                        user_session.clean_session()
 
-                    if user_session.user_info['state']['created'] == 'in_process':
+                    elif user_session.user_info['state']['created'] == 'in_process':
 
                         if user_session.user_info['profile']['username'] == 'in_process':
                                 exist = user_exist(cur_message)
@@ -162,15 +169,17 @@ def check_telegram_updates():
                             else:
                                 send_message('пароль либо слишком прост,либо не меньше 8 символов', cur_chat)
                         elif user_session.user_info['profile']['password2'] == 'in_process':
-                            if re.match(r'[A-Za-z0-9@#$%^&+=]{8,}', cur_message) and user_session['profile']['password1'] == cur_message:
+                            if re.match(r'[A-Za-z0-9@#$%^&+=]{8,}', cur_message) and user_session.user_info['profile']['password1'] == cur_message:
                                 send_message('Пароли совпадают', cur_chat)
                                 user_session.update_user_creditails('profile','password2',cur_message)
                                 user_session.update_state_user('created',True,cur_message)
-                                success = create_user(user_session.username,user_session.password)
+                                success = create_user(user_session.user_info['profile']['username'],user_session.user_info['profile']['password2'])
                                 user_session.save_user_info()
                                 if success:
                                     send_message('Вы успешно зарегистрированы.Что бы начать пользоваться ботом авторизуйтесь.', cur_chat)
-                                    user_session.update_state_user('created',True,password)
+                                    send_message('Запомните или запишите свой логин и пароль так как востановить его будет невозможно', cur_chat)
+                                    send_message('Ваш логин {}\n.Ваш пароль {}'.format(user_session.user_info['profile']['username'],user_session.user_info['profile']['password2']), cur_chat)
+                                    user_session.update_state_user('created',True,user_session.user_info['profile']['password2'])
                                     user_session.save_user_info()
                                 else:
                                     send_message('Что то не так с сервером попробуйте позже'.format(cur_user), cur_chat)
@@ -178,7 +187,8 @@ def check_telegram_updates():
 
 
                             else:
-                                send_message('пароль либо слишком прост,либо не меньше 8 символов', cur_chat)
+                                send_message('Пароли не совпадают', cur_chat)
+                                send_message('Попробуйте еще раз ', cur_chat)
 
 
 
