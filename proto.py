@@ -17,7 +17,7 @@ from lib.base import  (clean_patern, send_message, get_url, find_user_message_ch
                   div_password, build_keyboard, get_json_from_url,get_last_update_id,
                   get_updates, get_updates, get_last_chat_id_and_text, telegram_clean_history)
 login_items = ['my_uploads', 'upload_image', 'change_password', 'instructions','end_sessions']
-menu_items = ['create_profile','login','help']
+menu_items = ['регистрация','войти','помощь']
 password_item = ['put password']
 
 
@@ -95,7 +95,7 @@ def check_telegram_updates():
                             if len(content['photos']) > 0:
                                 for photo in content['photos']:
                                     send_message("""
-                                                    id: {} 
+                                                    id: яя{} 
                                                     \n created: {} 
                                                     \n unique link:
                                                         {} 
@@ -140,58 +140,15 @@ def check_telegram_updates():
                             user_session.save_user_info()
                 ################menu without login###################################################
                 else:
-                    send_message('Choose your variant', cur_chat, menu_keyboard)
-                    if cur_message =='login':
-                        exist = user_exist(cur_user)
-                        if exist:
-                            send_message('PUT YOUR PASSWORD', cur_chat)
-                            send_message('mypassword=YOUR PASSWORD MUST BE HERE', cur_chat)
-                            if not user_session.user_info['state']['login'] == True:
-                                user_session.update_state_user('login','in_process')
-                        else:
-                            send_message('Your user not created in system -> choose create profile', cur_chat)
-                            send_message('Choose your variant', cur_chat, menu_keyboard)
-                            user_session.save_user_info()
+                    send_message('', cur_chat, menu_keyboard)
+                    if cur_message == 'регистрация':
+                            send_message('Придумайте логин и введите логин', cur_chat)
+                            user_session.update_state_user('created','in_process')
+                            user_session.user_info['profile']['username'] = 'in_process'
+                    elif  user_session.user_info['profile']['username'] == 'in_process':
+                            send_message('я тут', cur_chat)
 
-                    if re.match(r'mypassword=[A-Za-z0-9@#$%^&+=]{8,}', cur_message) and  user_session.user_info['state']['login'] == 'in_process':
-                        password = div_password(cur_message)
-                        login = do_login(cur_user,password,cur_chat)
-                        if login:
-                            send_message('Choose your variant', cur_chat, login_keyboard)
-                            user_session.update_state_user('login',True,password)
 
-                        else:
-                            send_message('something bad with your password try again', cur_chat)
-                            send_message('Choose your variant', cur_chat, menu_keyboard)
-                            user_session.save_user_info()
-                    if cur_message == 'create_profile':
-                            exist = user_exist(cur_user)
-                            if exist:
-                                send_message('your user already exists .try to login', cur_chat)
-                                send_message('Choose your variant', cur_chat, menu_keyboard)
-                                user_session.save_user_info()
-                            else:
-                                send_message('YOUR telegram username it is login', cur_chat)
-                                send_message('PUT YOUR PASSWORD', cur_chat)
-                                send_message('mypassword=YOUR PASSWORD MUST BE HERE', cur_chat)
-                                user_session.update_state_user('created','in_process')
-
-                    if re.match(r'mypassword=[A-Za-z0-9@#$%^&+=]{8,}', cur_message) and user_session.user_info['state']['created'] == 'in_process':
-                        password = div_password(cur_message)
-                        success = create_user(cur_user,password)
-                        user_session.save_user_info()
-                        if success:
-                            send_message('profile was created please try login', cur_chat)
-                            user_session.update_state_user('created',True,password)
-                            user_session.save_user_info()
-                        else:
-                            send_message('something bad with server.Try again later'.format(cur_user), cur_chat)
-                            send_message('Choose your variant', cur_chat, menu_keyboard)
-                            user_session.save_user_info()
-                    if cur_message == 'help':
-                        send_message('help MUST BE HERE', cur_chat)
-                        send_message('Choose your variant', cur_chat, menu_keyboard)
-                        user_session.save_user_info()
             time.sleep(0.5)
     
 def main_flow():
@@ -199,7 +156,6 @@ def main_flow():
     
 
 if __name__ == '__main__':
-    #add some debug option
     if len(sys.argv) >1:
         if sys.argv[1] == '--debug':
             do_some_protection()
