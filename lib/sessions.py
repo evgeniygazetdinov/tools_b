@@ -28,7 +28,8 @@ class Session(object):
             'changer':{'old_password':False,'new_password':False},
             'last_action':datetime.now().strftime('%Y-%m-%d %H:%M'),
             'pushed_button': False,'cur_chat': self.cur_chat,'message_id':self.message_id,
-            'profile':{'username':False,'password1':False,'password2':False}}
+            'profile':{'username':False,'password1':False,'password2':False},
+            'login_creditails':{'username':False,'password':False}}
             self.user_folder = self.create_user_folder()
             self.save_user_info()
 
