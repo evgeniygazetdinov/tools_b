@@ -27,7 +27,8 @@ class Session(object):
             'state': {'login': False, 'created': False,'upload': False,'change_password':False},
             'changer':{'old_password':False,'new_password':False},
             'last_action':datetime.now().strftime('%Y-%m-%d %H:%M'),
-            'pushed_button': False,'cur_chat': self.cur_chat,'message_id':self.message_id}
+            'pushed_button': False,'cur_chat': self.cur_chat,'message_id':self.message_id,
+            'profile':{'username':False,'password1':False,'password2':False}}
             self.user_folder = self.create_user_folder()
             self.save_user_info()
 
@@ -46,7 +47,16 @@ class Session(object):
         if password:
             self.user_info['password'] = password
         self.save_user_info()
-        print(self.user_info)
+
+    def update_user_creditails(self,place,check_place,value_for_place):
+        self.update_last_action()
+        self.user_info[place][check_place]=value_for_place
+        #if 'password2' != 'in_process' and 'password2' != False:
+            #flag for success user create
+            # self.username = self.user_info['profile']['username']
+            # self.password = self.user_info['profile']['password2']
+        self.save_user_info()
+
 
     def get_user_info_value(self,value):
         self.update_last_action()

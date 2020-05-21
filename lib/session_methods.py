@@ -1,5 +1,5 @@
 import time 
-from lib.const import URL
+from lib.const import URL,raw_menu_keyboard
 from lib.base import send_message
 from lib.history import create_links_for_delete,clean_history, delete_user_ids_from_bot_actions, store_action, get_path
 from lib.active_users import remove_active_users
@@ -8,10 +8,7 @@ import requests
 import json
 import urllib
 import os
-menu_keyboard = {
-    'one_time_keyboard': True,
-    'keyboard': [ ['create_profile'], ['login'] ,['help']]
-}
+
 
 #so ugly
 def send_raw_message(text, chat_id, reply_markup=None):
@@ -35,19 +32,31 @@ def send_raw_message(text, chat_id, reply_markup=None):
                 data = json.load(json_file)
         #data-dict empty
         if (not data):
+            
             data[user]=[mes_id]
+            print('*'*10)
+            print(data)
+            print(mes_id)
+            print('*'*10)
         else:
             if user not in data:
                 data[user]=[mes_id]
+                print('*'*10)
             else:
                 data[user].append(mes_id)
+                print(data)
+                print(mes_id)
+                print('*'*10)
+           
         store_action(path,data)
 
 
 
     #push message_id into user_list)))
-
-    
+def hide_tracks(session):
+    clean_history(session,session.username)
+    delete_user_ids_from_bot_actions(session.username)
+    remove_active_users(session.username)
 
 
 #executed on push button
@@ -62,12 +71,10 @@ def check_user_actions(cur_user,session):
         #check_user_folder
         if begin  == minute:
             print('time is over')
-            send_message('60 second passed',session.get_user_info_value('cur_chat') )      
-            clean_history(session,session.username)
-            delete_user_ids_from_bot_actions(session.username)
-            remove_active_users(session.username)
-            #remove_from_bot       
-            send_raw_message('Choose your variant',session.get_user_info_value('cur_chat'),menu_keyboard)
+            send_message('60 second passed',session.get_user_info_value('cur_chat') )
+            hide_tracks(session)
+            #remove_from_bot
+            send_raw_message('выберите вариант',session.get_user_info_value('cur_chat'),raw_menu_keyboard)
             session.clean_session()
             
             break

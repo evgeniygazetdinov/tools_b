@@ -20,7 +20,7 @@ def get_path(user=False):
         path =os.getcwd()+'/session/bot_action.json'
     return path
 
-  
+
 def path_for_user_or_bot(user,is_user):
     return get_path(user) if is_user else get_path()
 
