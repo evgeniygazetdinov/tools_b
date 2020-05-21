@@ -8,7 +8,7 @@ import datetime
 import threading
 from multiprocessing import Process,current_process,cpu_count,active_children
 from lib.sessions import Session
-from lib.session_methods import check_user_actions,send_raw_message
+from lib.session_methods import check_user_actions,send_raw_message, hide_tracks
 from lib.const import  URL, menu_items, login_items, kick_out
 from lib.protect import do_some_protection
 from lib.active_users import get_active_users, save_users_state, push_active_users, remove_active_users
@@ -136,19 +136,19 @@ def check_telegram_updates():
                             user_session.save_user_info()
                 ################menu without login###################################################
                 else:
-                    #new session checker menu
-                    #if user_session.user_info['state']['created'] == 'in_process':
-                    #    send_raw_message('выберите вариант', cur_chat, kick_out)
-                    #elif:
-                    send_message('выберите вариант', cur_chat, menu_keyboard)
-                    #check flag if created выйти из регистрации выйти из меню логина
+                    if cur_message:
+                        if user_session.user_info['state']['created'] == 'in_process' or cur_message =='регистрация':
+                            send_raw_message('выберите вариант', cur_chat, kick_out)
+                        else:
+                            send_message('выберите вариант', cur_chat, menu_keyboard)
                     if cur_message == 'регистрация':
-                            send_message('Придумайте логин и введите логин', cur_chat)
+                            send_message('Придумайте и введите логин на английском', cur_chat)
                             user_session.update_state_user('created','in_process')
                             user_session.update_user_creditails('profile','username','in_process')
                     elif cur_message == 'выйти':
+                        hide_tracks(user_session)
                         user_session.clean_session()
-
+                        send_message('выберите вариант', cur_chat, menu_keyboard)
                     elif user_session.user_info['state']['created'] == 'in_process':
 
                         if user_session.user_info['profile']['username'] == 'in_process':
@@ -178,9 +178,10 @@ def check_telegram_updates():
                                 if success:
                                     send_message('Вы успешно зарегистрированы.Что бы начать пользоваться ботом авторизуйтесь.', cur_chat)
                                     send_message('Запомните или запишите свой логин и пароль так как востановить его будет невозможно', cur_chat)
-                                    send_message('Ваш логин {}\n.Ваш пароль {}'.format(user_session.user_info['profile']['username'],user_session.user_info['profile']['password2']), cur_chat)
+                                    send_message('Ваш логин {}.Ваш пароль {}'.format(user_session.user_info['profile']['username'],user_session.user_info['profile']['password2']), cur_chat)
                                     user_session.update_state_user('created',True,user_session.user_info['profile']['password2'])
                                     user_session.save_user_info()
+                                    send_message('выберите вариант', cur_chat, menu_keyboard)
                                 else:
                                     send_message('Что то не так с сервером попробуйте позже'.format(cur_user), cur_chat)
                                     user_session.save_user_info()

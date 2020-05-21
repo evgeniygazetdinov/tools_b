@@ -53,8 +53,10 @@ def send_raw_message(text, chat_id, reply_markup=None):
 
 
     #push message_id into user_list)))
-
-    
+def hide_tracks(session):
+    clean_history(session,session.username)
+    delete_user_ids_from_bot_actions(session.username)
+    remove_active_users(session.username)
 
 
 #executed on push button
@@ -70,13 +72,8 @@ def check_user_actions(cur_user,session):
         if begin  == minute:
             print('time is over')
             send_message('60 second passed',session.get_user_info_value('cur_chat') )
-           
-           
-            clean_history(session,session.username)
-            delete_user_ids_from_bot_actions(session.username)
-            remove_active_users(session.username)
+            hide_tracks(session)
             #remove_from_bot
-            
             send_raw_message('выберите вариант',session.get_user_info_value('cur_chat'),raw_menu_keyboard)
             session.clean_session()
             
