@@ -56,7 +56,7 @@ def check_telegram_updates():
                 if cur_message == '/start':
                     send_message("hello this photohosting bot please create profile or login",cur_chat)
                     send_message('Choose your variant', cur_chat, menu_keyboard)
-                if user_session.user_info['state']['login'] and user_session.user_info['password']:
+                elif user_session.user_info['state']['login'] == "True":
                     send_message('Choose your variant', cur_chat, login_keyboard)
                 ###############end_session##################################################
                     if cur_message =='end_sessions' and  user_session.user_info['state']['login']:
@@ -85,7 +85,7 @@ def check_telegram_updates():
                         user_session.save_user_info()
                 ###########my_uploads#########################################
                     if re.match('my_uploads',cur_message) and user_session.user_info['state']['login'] and user_session.get_user_info_value('password'):
-                        content = do_login(cur_user,user_session.get_user_info_value('password'),cur_chat,show_user_content=True)
+                        content = do_login(cur_user,user_session.get_user_info_value('password'),show_user_content=True)
                         user_session.save_user_info()
                         if content:
                             if len(content['photos']) > 0:
@@ -136,19 +136,50 @@ def check_telegram_updates():
                             user_session.save_user_info()
                 ################menu without login###################################################
                 else:
+#################selectors################################################################    
                     if cur_message:
-                        if user_session.user_info['state']['created'] == 'in_process' or cur_message =='регистрация':
-                            send_raw_message('выберите вариант', cur_chat, kick_out)
+                        if user_session.user_info['state']['created'] == 'in_process' or cur_message =='регистрация' or cur_message == 'войти':
+                            send_raw_message('\U000026C4', cur_chat, kick_out)
                         else:
                             send_message('выберите вариант', cur_chat, menu_keyboard)
                     if cur_message == 'регистрация':
                             send_message('Придумайте и введите логин на английском', cur_chat)
                             user_session.update_state_user('created','in_process')
                             user_session.update_user_creditails('profile','username','in_process')
-                    elif cur_message == 'выйти':
+
+                    elif cur_message == 'назад':
                         hide_tracks(user_session)
                         user_session.clean_session()
                         send_message('выберите вариант', cur_chat, menu_keyboard)
+
+                    elif cur_message == 'войти':
+                            send_message('Введите ваш логин', cur_chat)
+                            user_session.update_state_user('login','in_process')
+                            user_session.update_user_creditails('login_credentials','username','in_process')
+##################inside login##########################################################################
+                    elif user_session.user_info['state']['login'] == 'in_process':
+                        if user_session.user_info['login_credentials']['username'] == 'in_process':
+                            exist = user_exist(cur_message)
+                            if not exist:
+                                send_message('Пользователь с таким логином не существует проверьте правильность вашего логина', cur_chat)
+                            else:
+                                user_session.update_user_creditails('login_credentials','username',cur_message)
+                                user_session.update_user_creditails('login_credentials','password','in_process')
+                                send_message('Введите ваш пароль', cur_chat)
+
+                        elif user_session.user_info['login_credentials']['password'] == 'in_process':
+                            login = do_login(user_session.user_info['login_credentials'],cur_message)
+                            if login:
+                                send_message('Вы авторизованы в системе', cur_chat)
+                                user_session.save_user_info()
+                                user_session.update_user_creditails('login_credentials','password',cur_message)
+                                user_session.update_state_user('login',True,cur_message)
+                                user_session.save_user_info()
+
+                            else:
+                                send_message('Неправильный пароль,введите пароль еще раз', cur_chat)
+                                
+##################inside register##########################################################################
                     elif user_session.user_info['state']['created'] == 'in_process':
 
                         if user_session.user_info['profile']['username'] == 'in_process':

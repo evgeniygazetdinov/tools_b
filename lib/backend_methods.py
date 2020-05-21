@@ -25,14 +25,14 @@ def create_user(username,password):
     return True if response.status_code == 201 or response.status_code == 200 else False
 
 
-def do_login(username,password,cur_chat,show_user_content=False):
+def do_login(username,password,show_user_content=False):
     url = BACKEND_URL+'user/check_current/'
     with requests.session() as s:
         s.auth = (username, password)
         r = s.get(url)
         print(r.status_code)
+        print(r.text)
         if r.status_code == 201 or r.status_code ==200:
-            send_message('you authenticated',cur_chat)
             if show_user_content:
                 return json.loads(r.text)
             return True

@@ -93,6 +93,7 @@ def check_it_is_password(password,cur_chat):
 
 def find_user_message_chat(results):
     cur_result = results[0]
+    message_id = ''
     if 'callback_query' in cur_result:
         return 
     if 'message' in cur_result:
