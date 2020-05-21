@@ -5,8 +5,6 @@ from lib.base import send_message
 from urllib import request, parse
 import os
 import re
-
-
 #describe methods for work with  api on dv24.website
 
 
@@ -41,7 +39,6 @@ def do_login(username,password,cur_chat,show_user_content=False):
 
 
 
-
 def upload_photo_on_server(filename,username,password):
     with open(os.getcwd()+'/'+filename,'rb') as img:
         #name_img= os.path.basename(path_img)
@@ -64,7 +61,7 @@ def get_my_uploaded_photos():
 
 
 
-
+      
 def change_password(username,old_password,new_password):
     url = BACKEND_URL+'user/update/'
     body = {'old_password': old_password,'new_password': new_password}
@@ -73,6 +70,7 @@ def change_password(username,old_password,new_password):
         response = s.put(url,body)
         print(response.content)
         return True if response.status_code == 201 or response.status_code == 200 else False
+
 
 def extract_name_from_content_dis(cd):
     if not cd:

@@ -44,9 +44,6 @@ def store_action(path,result):
             os.makedirs(str(not_exist_dir[0]))
         #creating not exists file
     with open(path, 'w', encoding='utf-8') as f:
-        print('*'*25)
-        print(result)
-        print('*'*25)
         json.dump(result, f, ensure_ascii=False, indent=4)
 
 
