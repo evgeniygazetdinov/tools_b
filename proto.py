@@ -56,36 +56,53 @@ def check_telegram_updates():
                 if cur_message == '/start':
                     send_message("hello this photohosting bot please create profile or login",cur_chat)
                     send_message('Choose your variant', cur_chat, menu_keyboard)
-                elif user_session.user_info['state']['login'] == "True":
-                    send_message('Choose your variant', cur_chat, login_keyboard)
+
+                if user_session.user_info['state']['login'] == True:
+                    if cur_message:
+                            if user_session.user_info['state']['upload'] == 'in_process' or \
+                                user_session.user_info['state']['change_password'] == 'in_process' or \
+                                cur_message =='загрузить фото' or \
+                                cur_message == 'инструкции' or \
+                                cur_message == 'сменить пароль' :
+                                send_raw_message('\U000026C4', cur_chat, kick_out)
+                            else:
+                                send_message('выберите вариант', cur_chat, login_keyboard)
+                    if cur_message == 'назад':
+                        user_session.reset_login_session()
+
                 ###############end_session##################################################
-                    if cur_message =='end_sessions' and  user_session.user_info['state']['login']:
+                    if cur_message =='закончить сессию':
+                        send_message('Досвидания', cur_chat)
                         user_session.clean_session()
-                        send_message('Session was cleaned ', cur_chat)
-                        send_message('goodbye', cur_chat)
-                        send_message('Choose your variant', cur_chat, menu_keyboard)
+                        hide_tracks(user_session)
                 #############upload_image###############################################
-                    if cur_message =='upload_image':
-                        send_message('Drag your image', cur_chat)
+
+                    if cur_message =='загрузить фото':
+                        send_message('Перетяните или выберете изоображение', cur_chat)
                         user_session.update_state_user('upload','in_process')
 
                     if re.match(r'download_link=', cur_message) and user_session.user_info['state']['upload'] == 'in_process':
                         url = clean_patern(cur_message)
                         filename,path_file = upload_photo_from_telegram_and_get_path(url)
-                        sucess_upload = upload_photo_on_server(filename,cur_user,user_session.get_user_info_value('password'))
+                        sucess_upload = upload_photo_on_server(filename,user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'])
                         os.remove(path_file)
                         user_session.save_user_info()
                         if sucess_upload:
-                            send_message('file uploaded', cur_chat)
+                            send_message('Изоображение загружено на сервер.Результаты в мои загрузки', cur_chat)
                             user_session.save_user_info()
                         else:
-                            send_message('something bad with server.Try again later'.format(cur_user), cur_chat)
+                            send_message('Сервер недоступен.Попробуйте позже'.format(cur_user), cur_chat)
                             user_session.save_user_info()
-                        send_message('Choose your variant', cur_chat, login_keyboard)
                         user_session.save_user_info()
+                        user_session.update_state_user('upload',False)
+                        
                 ###########my_uploads#########################################
-                    if re.match('my_uploads',cur_message) and user_session.user_info['state']['login'] and user_session.get_user_info_value('password'):
-                        content = do_login(cur_user,user_session.get_user_info_value('password'),show_user_content=True)
+                    if cur_message == 'мои загрузки':
+                        print('&'*10)
+                        print('&'*10)
+
+                        content = do_login(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],show_user_content=True)
+                        print(content)
                         user_session.save_user_info()
                         if content:
                             if len(content['photos']) > 0:
@@ -103,42 +120,41 @@ def check_telegram_updates():
                                 print(photo['unique_link'])
                                 user_session.save_user_info()
                             else:
-                                send_message('no photos', cur_chat)
+                                send_message('Нет загруженных фотографий', cur_chat)
                                 user_session.save_user_info()
                 ##########change password######################################
-                    if re.match('change_password',cur_message) and user_session.user_info['state']['login'] and user_session.user_info['password']:
-                        send_message('put your old password', cur_chat)
-                        send_message('oldpassword= YOUR OLD PASSWORD', cur_chat)
+                    if cur_message =='сменить пароль':
+                        send_message('Введите текущий пароль', cur_chat)
+                        user_session.user_info['changer']['old_password'] = 'in_process'
                         user_session.update_state_user('change_password','in_process')
-                    if re.match(r'oldpassword=', cur_message) and user_session.user_info['state']['change_password'] == 'in_process':
-                        old_password = clean_patern(cur_message)
-                        if old_password == user_session.get_user_info_value('password'):
-                            user_session.user_info['changer']['old_password'] = old_password
+
+                    elif user_session.user_info['changer']['old_password'] == 'in_process':
+                        if cur_message == user_session.user_info['login_credentials']['password']:
+                            user_session.user_info['changer']['old_password'] = cur_message
+                            user_session.user_info['changer']['new_password'] = 'in_process'
                             user_session.save_user_info()
-                            send_message('put new_password', cur_chat)
-                            send_message('newpassword=YOUR NEW PASSWORD', cur_chat)
+                            send_message('Введите новый пароль', cur_chat)
                         else:
-                            send_message('this not look like your current password', cur_chat)
+                            send_message('Неверный текущий пароль.Попробуйте снова', cur_chat)
                             user_session.save_user_info()
 
-                    if re.match(r'newpassword=', cur_message) and user_session.user_info['state']['change_password'] == 'in_process':
-                        new_password = clean_patern(cur_message)
+                    elif user_session.user_info['changer']['new_password'] == 'in_process':
                         #check password it is not common
                         old_password = user_session.user_info['changer']['old_password']
                         user_session.save_user_info()
-                        if change_password(cur_user,old_password,new_password):
-                            send_message('password was changed', cur_chat)
-                            user_session.user_info['password'] = new_password
-                            user_session.user_info['changer']['new_password'] = new_password
-                            user_session.update_state_user('change_password',True)
+                        if change_password(cur_user,old_password,cur_message):
+                            send_message('Пароль был изменен', cur_chat)
+                            user_session.user_info['login_credentials']['password'] = cur_message
+                            user_session.user_info['changer']['new_password'] = cur_message
+                            user_session.update_state_user('change_password',False)
                         else:
-                            send_message('something bad with server try again later', cur_chat)
+                            send_message('Сервер недоступен.Попробуйте позже', cur_chat)
                             user_session.save_user_info()
                 ################menu without login###################################################
                 else:
 #################selectors################################################################    
                     if cur_message:
-                        if user_session.user_info['state']['created'] == 'in_process' or cur_message =='регистрация' or cur_message == 'войти':
+                        if user_session.user_info['state']['created'] == 'in_process' or  user_session.user_info['state']['login'] == 'in_process' or cur_message =='регистрация' or cur_message == 'войти':
                             send_raw_message('\U000026C4', cur_chat, kick_out)
                         else:
                             send_message('выберите вариант', cur_chat, menu_keyboard)
@@ -168,13 +184,15 @@ def check_telegram_updates():
                                 send_message('Введите ваш пароль', cur_chat)
 
                         elif user_session.user_info['login_credentials']['password'] == 'in_process':
-                            login = do_login(user_session.user_info['login_credentials'],cur_message)
+                            print()
+                            login = do_login(user_session.user_info['login_credentials']['username'],cur_message)
                             if login:
                                 send_message('Вы авторизованы в системе', cur_chat)
                                 user_session.save_user_info()
                                 user_session.update_user_creditails('login_credentials','password',cur_message)
                                 user_session.update_state_user('login',True,cur_message)
                                 user_session.save_user_info()
+                                send_message('Выбирете вариант', cur_chat, login_keyboard)
 
                             else:
                                 send_message('Неправильный пароль,введите пароль еще раз', cur_chat)

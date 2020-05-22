@@ -58,12 +58,17 @@ class Session(object):
             # self.password = self.user_info['profile']['password2']
         self.save_user_info()
 
+    def reset_login_session(self):
+        #reset all and back to login menu
+        self.update_state_user('upload',False)
+        self.update_state_user('change_password',False)
+        self.update_state_user('login',True)
 
     def get_user_info_value(self,value):
         self.update_last_action()
         return self.user_info[value]
 
-    def save_to_user_history():
+    def save_to_user_history(self):
         with open(self.user_folder +'/history.json', 'w+', encoding='utf-8') as f:
             json.dump(self.user_info, f, ensure_ascii=False, indent=4)
 
