@@ -13,6 +13,7 @@ import os
 #so ugly
 def send_raw_message(text, chat_id, reply_markup=None):
     #text = urllib.parse.quote_plus(text)
+    dict_for_store = dict()
     url = URL + "sendMessage"
     data = {'chat_id':chat_id,'text':text}
     if reply_markup:
@@ -23,24 +24,24 @@ def send_raw_message(text, chat_id, reply_markup=None):
     if 'result' in context:
         mes_id = context['result']['message_id']
         if 'id' in context['result']['chat']:
-            user = context['result']['chat']['id']
+            user = str(context['result']['chat']['id'])
         path = get_path()
+
         if os.path.exists(path):
             with open(path,'r') as json_file:
-                data = json.load(json_file)
-                print(data)
-        #data-dict empty
-        if (not data):
-            
-            data[user]=[mes_id]
+                dict_for_store = json.load(json_file)
+                #data-dict empty
+                if not any(dict_for_store):
+                    dict_for_store[user]=[mes_id]
+                else:
+                    dict_for_store[user].append(mes_id)
+        #if bot action not exist
         else:
-            if user not in data:
-                data[user]=[mes_id]
-            else:
-                data[user].append(mes_id)
+            dict_for_store[user]=[mes_id]
+            
               
            
-        store_action(path,data)
+        store_action(path,dict_for_store)
 
 
 

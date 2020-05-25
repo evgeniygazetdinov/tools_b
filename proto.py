@@ -42,8 +42,8 @@ def check_telegram_updates():
                     active_users = get_active_users()
                     for p in active_children():
                        
-                        if p.name in active_users['users']:
-                             if p.name == cur_user:
+                        if int(p.name) in active_users['users']:
+                             if int(p.name) == cur_user:
                                 p.terminate()
                                 remove_active_users(cur_user)
                         else:
@@ -54,8 +54,7 @@ def check_telegram_updates():
                     thread2.start()
                 #message-handlers
                 if cur_message == '/start':
-                    send_message("hello this photohosting bot please create profile or login",cur_chat)
-                    send_message('Choose your variant', cur_chat, menu_keyboard)
+                    send_message("Привет это бот фотохостинга",cur_chat)
 
                 if user_session.user_info['state']['login'] == True:
                     if cur_message:

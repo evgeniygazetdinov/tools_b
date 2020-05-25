@@ -77,7 +77,7 @@ def save_action(content):
                 if cur_result['from']['is_bot'] :
                     path = get_path()
                     if 'id' in cur_result['chat']:
-                        user = cur_result['chat']['id']
+                        user = str(cur_result['chat']['id'])
                     message = content['result']['message_id']
                     data = get_data_by_path(user)
                     if user in data:
@@ -95,7 +95,7 @@ def save_action(content):
                         message =res['message']['message_id']
                         from_ = res['message']['from']
                         if 'id' in from_:
-                            user = from_['id']
+                            user = str(from_['id'])
                         path = get_path(user)
                         data = get_data_by_path(user,is_user=True)
                         if user in data:
