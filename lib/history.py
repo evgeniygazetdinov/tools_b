@@ -111,13 +111,14 @@ def save_action(content):
 
 
 def extract_ids(username):
+
     message_ids = []
     user_path, bot_path, user_data, bot_data = get_data_and_paths(username)
-    if username in bot_data:
-        if username in user_data:
-            for message_id in bot_data[username]:
+    if str(username) in bot_data:
+        if str(username) in user_data:
+            for message_id in bot_data[str(username)]:
                 message_ids.append(message_id)
-            for message_id in user_data[username]:
+            for message_id in user_data[str(username)]:
                 message_ids.append(message_id)
     return message_ids
 
@@ -127,7 +128,7 @@ def extract_ids(username):
 def create_links_for_delete(session,username):
     links = []
     chat_id= session.get_user_info_value('cur_chat')
-    message_ids = extract_ids(username)
+    message_ids = extract_ids(str(username))
     for message_id in message_ids:
         links.append(URL+'deletemessage?message_id={}&chat_id={}'.format(message_id,chat_id))
     return links
