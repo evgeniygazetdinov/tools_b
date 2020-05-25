@@ -17,9 +17,9 @@ class Session(object):
         #check_folder
         #exists load 
         #else create
-        self.user_file_path = os.getcwd()+'/session/'+self.username+'/'+self.username+'.json'
+        self.user_file_path = os.getcwd()+'/session/'+str(self.username)+'/'+str(self.username)+'.json'
         if os.path.exists(self.user_file_path):
-            self.user_folder = os.getcwd()+'/session/'+self.username
+            self.user_folder = os.getcwd()+'/session/'+str(self.username)
             self.user_info = self.get_session_details()
             self.save_user_info()
         else:
@@ -85,8 +85,8 @@ class Session(object):
             return data
 
     def create_user_folder(self):
-        os.makedirs(os.getcwd()+'/session/'+self.username,exist_ok = True)
-        return str(os.getcwd()+'/session/'+self.username)
+        os.makedirs(os.getcwd()+'/session/'+str(self.username),exist_ok = True)
+        return str(os.getcwd()+'/session/'+str(self.username))
 
 
     def clean_session(self):

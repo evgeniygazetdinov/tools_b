@@ -44,9 +44,6 @@ def store_action(path,result):
             os.makedirs(str(not_exist_dir[0]))
         #creating not exists file
     with open(path, 'w', encoding='utf-8') as f:
-        print('*'*25)
-        print(result)
-        print('*'*25)
         json.dump(result, f, ensure_ascii=False, indent=4)
 
 
@@ -79,10 +76,8 @@ def save_action(content):
             if 'message_id' in cur_result:
                 if cur_result['from']['is_bot'] :
                     path = get_path()
-                    if 'username' in cur_result['chat']:
-                        user = cur_result['chat']['username']
-                    else:
-                        user = cur_result['chat']['first_name']+cur_result['chat']['last_name']
+                    if 'id' in cur_result['chat']:
+                        user = cur_result['chat']['id']
                     message = content['result']['message_id']
                     data = get_data_by_path(user)
                     if user in data:
@@ -99,10 +94,8 @@ def save_action(content):
                     if  res["message"]["from"]["is_bot"] == False:
                         message =res['message']['message_id']
                         from_ = res['message']['from']
-                        if 'username' in from_:
-                            user = from_['username']
-                        else:
-                            user = from_['first_name']+from_['last_name']
+                        if 'id' in from_:
+                            user = from_['id']
                         path = get_path(user)
                         data = get_data_by_path(user,is_user=True)
                         if user in data:

@@ -71,7 +71,7 @@ def check_telegram_updates():
                         user_session.reset_login_session()
 
                 ###############end_session##################################################
-                    if cur_message =='закончить сессию':
+                    if cur_message =='завершить сессию':
                         send_message('Досвидания', cur_chat)
                         user_session.clean_session()
                         hide_tracks(user_session)

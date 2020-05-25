@@ -98,10 +98,8 @@ def find_user_message_chat(results):
         return 
     if 'message' in cur_result:
         chat = cur_result['message']['chat']
-        if 'username' in chat:
-            cur_user = chat['username']
-        else:
-            cur_user = chat['first_name']+chat['last_name']
+        if 'id' in chat:
+            cur_user = chat['id']
         cur_chat = cur_result['message']["chat"]["id"]
         message_id = cur_result['message']['message_id']
         if 'sticker' in cur_result['message']:
