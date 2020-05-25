@@ -14,10 +14,7 @@ def user_exist(username):
     url = BACKEND_URL+'user/exists/'+username+'/'
     response = requests.get(url)
     print(response.status_code)
-    if response.status_code == 200:
-        return True
-    else:
-        return False
+    return True if response.status_code == 200 else False
 
 
 def create_user(username,password):
@@ -25,24 +22,17 @@ def create_user(username,password):
     body = {'username': username,'password': password}
     response =  requests.post(url,data=body)
     print(response.status_code)
-    if response.status_code == 201 or response.status_code == 200:
-        return True
-    else:
-        return False
+    return True if response.status_code == 201 or response.status_code == 200 else False
 
 
-
-
-
-def do_login(username,password,cur_chat,show_user_content=False):
+def do_login(username,password,show_user_content=False):
     url = BACKEND_URL+'user/check_current/'
     with requests.session() as s:
         s.auth = (username, password)
         r = s.get(url)
         print(r.status_code)
-        print(r.content)
+        print(r.text)
         if r.status_code == 201 or r.status_code ==200:
-            send_message('you authenticated',cur_chat)
             if show_user_content:
                 return json.loads(r.text)
             return True
@@ -59,10 +49,8 @@ def upload_photo_on_server(filename,username,password):
         with requests.Session() as s:
             s.auth = (username, password)
             r = s.post(BACKEND_URL+'photo/upload/',files=files)
-            if r.status_code == 201 or r.status_code ==200:
-                return True
-            else:
-                return False
+            return True if r.status_code == 201 or r.status_code == 200 else False
+
 
 
 def get_my_uploaded_photos():
@@ -72,10 +60,8 @@ def get_my_uploaded_photos():
         r = s.post(url)
         print(r.status_code)
         print(r.content)
-        if r.status_code == 201 or r.status_code ==200:
-            return True
-        else:
-            return False
+        return True if r.status_code == 201 or r.status_code == 200 else False
+
 
 
 
@@ -86,17 +72,13 @@ def change_password(username,old_password,new_password):
         s.auth = (username, old_password)
         response = s.put(url,body)
         print(response.content)
-        if response.status_code == 201 or response.status_code == 200:
-            return True
-        else:
-            return False
+        return True if response.status_code == 201 or response.status_code == 200 else False
+
 def extract_name_from_content_dis(cd):
     if not cd:
            return 'None'
     fname = re.findall('filename=(.+)', cd)
-    if len(fname) == 0:
-        return 'None.jpg'
-    return fname[0]
+    return 'None.jpg' if len(fname) == 0 else fname[0]
 
 
 def upload_photo_from_telegram_and_get_path(url):

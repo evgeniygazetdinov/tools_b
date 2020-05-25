@@ -1,15 +1,23 @@
 import urllib
 import re
 from lib.const import URL, token
+from lib.history import save_action
 import requests
 import json
-
+import time 
+import os
 
 menu_items = ['create_profile','login','help']
 get_file = 'https://api.telegram.org/bot/getFile?file_id='
 
+ 
+
+
+
+
 
 def clean_patern(cur_message):
+    #refactor after
     link = ''
     if re.match(r'photo=', cur_message):
         link = cur_message.split('photo=')
@@ -37,7 +45,7 @@ def get_link_for_update_photo(token,file_id_link):
     #get request by this
     #get file path
     #insert file path into url
-    #return link for downloadand  user_session.user_info['state']['login'] == 'in_proces
+    #return link for download there state is user_session.user_info['state']['login'] == 'in_proces
 
     url =clean_patern(file_id_link)
     file_id = requests.get(url)
@@ -56,6 +64,9 @@ def build_keyboard(items):
 def get_url(url):
     response = requests.get(url)
     content = response.content.decode("utf8")
+    #save bot action here
+    save_action(response)
+    print(content)
     return content
 
 def div_password(password):
@@ -82,9 +93,15 @@ def check_it_is_password(password,cur_chat):
 
 def find_user_message_chat(results):
     cur_result = results[0]
+    message_id = ''
+    if 'callback_query' in cur_result:
+        return 
     if 'message' in cur_result:
-        cur_user = cur_result['message']['chat']['username']
+        chat = cur_result['message']['chat']
+        if 'id' in chat:
+            cur_user = chat['id']
         cur_chat = cur_result['message']["chat"]["id"]
+        message_id = cur_result['message']['message_id']
         if 'sticker' in cur_result['message']:
             cur_message = 'sticker'
             send_message('nice sticker',cur_chat)
@@ -106,7 +123,7 @@ def find_user_message_chat(results):
         cur_chat = cur_result['edited_message']["chat"]["id"]
         cur_message = cur_result['edited_message']['text']
 
-    return cur_user, cur_chat, cur_message
+    return cur_user, cur_chat, cur_message,message_id
 
 
 
@@ -139,11 +156,20 @@ def get_last_update_id(updates):
     return max(update_ids)
 
 
+def telegram_clean_history(message_id,chat_id):
+    for id in range(message_id,0,1):
+        delete_message(id,chat_id)
+        print(id)
+        time.sleep(0.1)
 
-def delete_message(chat_id,message_id):
-    url = URL + '/deletemessage?message_id={1}&chat_id={2}'.format(message_id, chat_id)
-    response = requests.get(url)
-    if response.status_code == 201 or response.status_code ==200:
-        return True
-    else: 
-        return False
+
+def create_dir_for_not_exists_file(active_users_path):
+    if not os.path.exists(active_users_path):
+        not_exist_dir = os.path.split(active_users_path)
+        if not os.path.exists(not_exist_dir[0]):
+            #create_not_exists_folder
+            os.makedirs(str(not_exist_dir[0]))
+        #creating not exists file
+        with open(active_users_path, 'w', encoding='utf-8') as f:
+            json.dump( {'users':[]}, f, ensure_ascii=False, indent=4)
+        
