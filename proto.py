@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 import sys
 print(sys.getdefaultencoding())
-
 import os
 import requests
 import time
 import urllib
 import re
-import sys
 import datetime
 import threading
 from multiprocessing import Process,current_process,cpu_count,active_children
@@ -75,10 +73,10 @@ def check_telegram_updates():
 
                 ###############end_session##################################################
                     if cur_message =='завершить сессию':
-                        send_message('Досвидания', cur_chat)
-                       
+                        send_message('Пока', cur_chat)                       
                         hide_tracks(user_session)
                         user_session.clean_session()
+
                 #############upload_image###############################################
 
                     if cur_message =='загрузить фото':
