@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+import sys
+print(sys.getdefaultencoding())
+
 import os
 import requests
 import time

@@ -113,11 +113,17 @@ def find_user_message_chat(results):
             print(cur_message)
 
         elif 'document' in cur_result['message']:
-            file_id_link = 'document='+'https://api.telegram.org/bot{}/getFile?file_id={}'.format(token, cur_result['message']['document']['thumb']['file_id'])
-            cur_message = get_link_for_update_photo(token,file_id_link)
-            print(cur_message)
+            if not 'thumb' in cur_result['message']['document']:
+                cur_message=''
+            else:
+                file_id_link = 'document='+'https://api.telegram.org/bot{}/getFile?file_id={}'.format(token, cur_result['message']['document']['thumb']['file_id'])
+                cur_message = get_link_for_update_photo(token,file_id_link)
+                print(cur_message)
         else:
-            cur_message = cur_result['message']['text']
+            if 'text' in cur_result['message']:
+                cur_message = cur_result['message']['text']
+            else:
+                cur_message = ''
     if 'edited_message' in cur_result:
         cur_user = cur_result['edited_message']['chat']['username']
         cur_chat = cur_result['edited_message']["chat"]["id"]
