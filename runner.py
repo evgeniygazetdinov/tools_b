@@ -3,7 +3,7 @@ import sys
 
 while(True):
 	try:
-		exec(open('main.py').read())
+		exec(open('proto.py').read())
 		time.sleep(1)
 	except:
 		print("something happend")

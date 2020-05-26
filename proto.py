@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
+import sys
+print(sys.getdefaultencoding())
 import os
 import requests
 import time
 import urllib
 import re
-import sys
 import datetime
 import threading
 from multiprocessing import Process,current_process,cpu_count,active_children
@@ -71,9 +73,10 @@ def check_telegram_updates():
 
                 ###############end_session##################################################
                     if cur_message =='завершить сессию':
-                        send_message('Досвидания', cur_chat)
-                        user_session.clean_session()
+                        send_message('Пока', cur_chat)                       
                         hide_tracks(user_session)
+                        user_session.clean_session()
+
                 #############upload_image###############################################
 
                     if cur_message =='загрузить фото':
@@ -141,7 +144,7 @@ def check_telegram_updates():
                         #check password it is not common
                         old_password = user_session.user_info['changer']['old_password']
                         user_session.save_user_info()
-                        if change_password(cur_user,old_password,cur_message):
+                        if change_password(user_session.user_info['login_credentials']['username'],old_password,cur_message):
                             send_message('Пароль был изменен', cur_chat)
                             user_session.user_info['login_credentials']['password'] = cur_message
                             user_session.user_info['changer']['new_password'] = cur_message
