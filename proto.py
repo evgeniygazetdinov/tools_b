@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 import sys
 print(sys.getdefaultencoding())
+import unicodedata
 import os
 import requests
 import time
 import urllib
 import re
+import sys
 import datetime
 import threading
 from multiprocessing import Process,current_process,cpu_count,active_children
@@ -37,13 +39,11 @@ def check_telegram_updates():
                 login_keyboard = build_keyboard(login_items)
                 menu_keyboard = build_keyboard(menu_items)
                 user_session = Session(cur_user,cur_chat,message_id)
-                print(user_session.__dict__)
                 if cur_message:
                     #remove active threads before
                     #here save user_message_info session
                     active_users = get_active_users()
                     for p in active_children():
-                       
                         if int(p.name) in active_users['users']:
                              if int(p.name) == cur_user:
                                 p.terminate()
@@ -57,32 +57,30 @@ def check_telegram_updates():
                 #message-handlers
                 if cur_message == '/start':
                     send_message("Привет это бот фотохостинга",cur_chat)
-
                 if user_session.user_info['state']['login'] == True:
                     if cur_message:
                             if user_session.user_info['state']['upload'] == 'in_process' or \
                                 user_session.user_info['state']['change_password'] == 'in_process' or \
+                                user_session.user_info['state']['change_time_check_updates'] == 'in_process' or \
                                 cur_message =='загрузить фото' or \
                                 cur_message == 'инструкции' or \
-                                cur_message == 'сменить пароль' :
+                                cur_message == 'сменить пароль' or \
+                                cur_message == 'сменить время чистки':
                                 send_raw_message('\U000026C4', cur_chat, kick_out)
                             else:
                                 send_message('выберите вариант', cur_chat, login_keyboard)
                     if cur_message == 'назад':
                         user_session.reset_login_session()
-
+####
                 ###############end_session##################################################
                     if cur_message =='завершить сессию':
-                        send_message('Пока', cur_chat)                       
+                        send_message('Досвидания', cur_chat)                      
                         hide_tracks(user_session)
                         user_session.clean_session()
-
                 #############upload_image###############################################
-
                     if cur_message =='загрузить фото':
                         send_message('Перетяните или выберете изоображение', cur_chat)
                         user_session.update_state_user('upload','in_process')
-
                     if re.match(r'download_link=', cur_message) and user_session.user_info['state']['upload'] == 'in_process':
                         url = clean_patern(cur_message)
                         filename,path_file = upload_photo_from_telegram_and_get_path(url)
@@ -97,14 +95,9 @@ def check_telegram_updates():
                             user_session.save_user_info()
                         user_session.save_user_info()
                         user_session.update_state_user('upload',False)
-                        
                 ###########my_uploads#########################################
                     if cur_message == 'мои загрузки':
-                        print('&'*10)
-                        print('&'*10)
-
                         content = do_login(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],show_user_content=True)
-                        print(content)
                         user_session.save_user_info()
                         if content:
                             if len(content['photos']) > 0:
@@ -119,7 +112,6 @@ def check_telegram_updates():
                                                     \n views:
                                                         {}
                                                     \n """.format(photo['id'],photo['created_date'],photo['unique_link'],photo['delete_by_unique_link'],[view for view in photo['views']]), cur_chat)
-                                print(photo['unique_link'])
                                 user_session.save_user_info()
                             else:
                                 send_message('Нет загруженных фотографий', cur_chat)
@@ -129,7 +121,6 @@ def check_telegram_updates():
                         send_message('Введите текущий пароль', cur_chat)
                         user_session.user_info['changer']['old_password'] = 'in_process'
                         user_session.update_state_user('change_password','in_process')
-
                     elif user_session.user_info['changer']['old_password'] == 'in_process':
                         if cur_message == user_session.user_info['login_credentials']['password']:
                             user_session.user_info['changer']['old_password'] = cur_message
@@ -139,7 +130,6 @@ def check_telegram_updates():
                         else:
                             send_message('Неверный текущий пароль.Попробуйте снова', cur_chat)
                             user_session.save_user_info()
-
                     elif user_session.user_info['changer']['new_password'] == 'in_process':
                         #check password it is not common
                         old_password = user_session.user_info['changer']['old_password']
@@ -152,6 +142,23 @@ def check_telegram_updates():
                         else:
                             send_message('Сервер недоступен.Попробуйте позже', cur_chat)
                             user_session.save_user_info()
+                         ######time for delete messages################################################
+                    elif cur_message == 'сменить время чистки':
+                        send_message('Введите желаемое время чистки в секундах:', cur_chat, login_keyboard)
+                        send_message('Предустановленное значение равно 60 секунд', cur_chat, login_keyboard)
+                        user_session.update_state_user('change_time_check_updates','in_process')
+                    elif user_session.user_info['state']['change_time_check_updates'] == 'in_process':
+                        print(cur_message)
+                        if (cur_message.isnumeric()):
+                            
+                            send_message('введите цифры', cur_chat, login_keyboard)
+                        else:
+                            if int(cur_message) < 60:
+                                send_message('введите значение большее 60', cur_chat, login_keyboard)
+                            else:
+                                send_message('Значение зафиксировано', cur_chat, login_keyboard)
+                                user_session.user_info['time_for_check_updates'] = cur_message
+                                user_session.update_state_user('change_time_check_updates','in_process') 
                 ################menu without login###################################################
                 else:
 #################selectors################################################################    
@@ -164,12 +171,10 @@ def check_telegram_updates():
                             send_message('Придумайте и введите логин на английском', cur_chat)
                             user_session.update_state_user('created','in_process')
                             user_session.update_user_creditails('profile','username','in_process')
-
                     elif cur_message == 'назад':
                         hide_tracks(user_session)
                         user_session.clean_session()
                         send_message('выберите вариант', cur_chat, menu_keyboard)
-
                     elif cur_message == 'войти':
                             send_message('Введите ваш логин', cur_chat)
                             user_session.update_state_user('login','in_process')
@@ -184,9 +189,7 @@ def check_telegram_updates():
                                 user_session.update_user_creditails('login_credentials','username',cur_message)
                                 user_session.update_user_creditails('login_credentials','password','in_process')
                                 send_message('Введите ваш пароль', cur_chat)
-
                         elif user_session.user_info['login_credentials']['password'] == 'in_process':
-                            print()
                             login = do_login(user_session.user_info['login_credentials']['username'],cur_message)
                             if login:
                                 send_message('Вы авторизованы в системе', cur_chat)
@@ -195,10 +198,9 @@ def check_telegram_updates():
                                 user_session.update_state_user('login',True,cur_message)
                                 user_session.save_user_info()
                                 send_message('Выбирете вариант', cur_chat, login_keyboard)
-
                             else:
                                 send_message('Неправильный пароль,введите пароль еще раз', cur_chat)
-                                
+               
 ##################inside register##########################################################################
                     elif user_session.user_info['state']['created'] == 'in_process':
 
@@ -211,7 +213,6 @@ def check_telegram_updates():
                                     send_message('Имя свободно', cur_chat)
                                     send_message('Придумайте пароль не менее 8 символов, пароль не должен быть простым', cur_chat)
                                     user_session.update_user_creditails('profile','password1','in_process')
-
                         elif user_session.user_info['profile']['password1'] == 'in_process':
                             if re.match(r'[A-Za-z0-9@#$%^&+=]{8,}', cur_message):
                                 send_message('Подтвердите пароль', cur_chat)
@@ -236,17 +237,12 @@ def check_telegram_updates():
                                 else:
                                     send_message('Что то не так с сервером попробуйте позже'.format(cur_user), cur_chat)
                                     user_session.save_user_info()
-
-
                             else:
                                 send_message('Пароли не совпадают', cur_chat)
                                 send_message('Попробуйте еще раз ', cur_chat)
-
-
-
-
             time.sleep(0.5)
-    
+
+
 def main_flow():
     check_telegram_updates()
     
