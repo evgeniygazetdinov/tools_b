@@ -24,12 +24,13 @@ class Session(object):
             self.save_user_info()
         else:
             self.user_info = {'username':username,'password':password,
-            'state': {'login': False, 'created': False,'upload': False,'change_password':False},
+            'state': {'login': False, 'created': False,'upload': False,'change_password':False,'change_time_check_updates':False},
             'changer':{'old_password':False,'new_password':False},
             'last_action':datetime.now().strftime('%Y-%m-%d %H:%M'),
             'pushed_button': False,'cur_chat': self.cur_chat,'message_id':self.message_id,
             'profile':{'username':False,'password1':False,'password2':False},
-            'login_credentials':{'username':False,'password':False}}
+            'login_credentials':{'username':False,'password':False},
+            'time_for_check_updates':60}
             self.user_folder = self.create_user_folder()
             self.save_user_info()
 
@@ -62,6 +63,7 @@ class Session(object):
         #reset all and back to login menu
         self.update_state_user('upload',False)
         self.update_state_user('change_password',False)
+        self.update_state_user('change_time_check_updates',False)
         self.update_state_user('login',True)
 
     def get_user_info_value(self,value):

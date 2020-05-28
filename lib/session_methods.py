@@ -55,16 +55,16 @@ def hide_tracks(session):
 #executed on push button
 def check_user_actions(cur_user,session):
     #just call and wait 60 second /if he passed clean history and clean session
-    minute = 60
+    time_for_check = session.user_info['time_for_check_updates']
     begin = 0
     while session.get_user_info_value('pushed_button'):
         begin+=1
         time.sleep(1)
         print(begin)
         #check_user_folder
-        if begin  == minute:
+        if begin  == time_for_check:
             print('time is over')
-            send_message('60 second passed',session.get_user_info_value('cur_chat') )
+            send_message('{} second passed'.format(time_for_check),session.get_user_info_value('cur_chat') )
             hide_tracks(session)
             #remove_from_bot
             send_raw_message('выберите вариант',session.get_user_info_value('cur_chat'),raw_menu_keyboard)
