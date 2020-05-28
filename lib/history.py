@@ -111,7 +111,6 @@ def save_action(content):
 
 
 def extract_ids(username):
-
     message_ids = []
     user_path, bot_path, user_data, bot_data = get_data_and_paths(username)
     if str(username) in bot_data:
