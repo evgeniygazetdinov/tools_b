@@ -72,6 +72,7 @@ def check_telegram_updates():
                             else:
                                 send_message('выберите вариант', cur_chat, login_keyboard)
                     if cur_message == 'назад':
+                        
                         user_session.reset_login_session()
 ####
                 ###############end_session##################################################
