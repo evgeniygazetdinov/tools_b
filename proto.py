@@ -41,39 +41,38 @@ def check_telegram_updates():
                 login_keyboard = build_keyboard(login_items)
                 menu_keyboard = build_keyboard(menu_items)
                 user_session = Session(cur_user,cur_chat,message_id)
-                if cur_message:
-                    #remove active threads before
-                    #here save user_message_info session
-                    active_users = get_active_users()
-                    for p in active_children():
-                        if int(p.name) in active_users['users']:
-                             if int(p.name) == cur_user:
-                                p.terminate()
-                                remove_active_users(cur_user)
-                        else:
-                            continue
-                    user_session.update_user_info('pushed_button',True)
-                    #BEGIN new counter user action
-                    thread2 = Process(name ="{}".format(cur_user),target=check_user_actions,args = (cur_user, user_session))
-                    thread2.start()
-                #message-handlers
                 if cur_message == '/start':
                     send_message("Привет это бот фотохостинга",cur_chat)
                 if user_session.user_info['state']['login'] == True:
                     if cur_message:
-                            if user_session.user_info['state']['upload'] == 'in_process' or \
-                                user_session.user_info['state']['change_password'] == 'in_process' or \
-                                user_session.user_info['state']['change_time_check_updates'] == 'in_process' or \
-                                cur_message =='загрузить фото' or \
-                                cur_message == 'инструкции' or \
-                                cur_message == 'сменить пароль' or \
-                                cur_message == 'сменить время чистки':
-                                    send_raw_message('👌', cur_chat, kick_out)
+                        #remove active threads before
+                        #here save user_message_info session
+                        active_users = get_active_users()
+                        for p in active_children():
+                            if int(p.name) in active_users['users']:
+                                if int(p.name) == cur_user:
+                                    p.terminate()
+                                    remove_active_users(cur_user)
                             else:
-                                send_message('выберите вариант', cur_chat, login_keyboard)
+                                continue
+                        user_session.update_user_info('pushed_button',True)
+                        #BEGIN new counter user action
+                        thread2 = Process(name ="{}".format(cur_user),target=check_user_actions,args = (cur_user, user_session))
+                        thread2.start()
+                        if user_session.user_info['state']['upload'] == 'in_process' or \
+                            user_session.user_info['state']['change_password'] == 'in_process' or \
+                            user_session.user_info['state']['change_time_check_updates'] == 'in_process' or \
+                            cur_message =='загрузить фото' or \
+                            cur_message == 'инструкции' or \
+                            cur_message == 'сменить пароль' or \
+                            cur_message == 'сменить время чистки':
+                                send_raw_message('👌', cur_chat, kick_out)
+                        else:
+                            send_message('выберите вариант', cur_chat, login_keyboard)
                     if cur_message == 'назад':
-                        
+
                         user_session.reset_login_session()
+                        send_message('выберите вариант', cur_chat, login_keyboard)
 ####
                 ###############end_session##################################################
                     if cur_message =='завершить сессию':
