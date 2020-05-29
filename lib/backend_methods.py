@@ -86,3 +86,13 @@ def upload_photo_from_telegram_and_get_path(url):
     filename = extract_name_from_content_dis(r.headers.get('content-disposition'))
     open(filename, 'wb').write(r.content)
     return filename, os.getcwd()+'/'+filename
+
+
+def change_delete_time(username,password,new_time):
+    url = BACKEND_URL+'user/update_delete_time/'
+    body = {'new_time': new_time}
+    with requests.session() as s:
+        s.auth = (username, password)
+        response = s.put(url,body)
+        print(response.content)
+        return True if response.status_code == 201 or response.status_code == 200 else False
