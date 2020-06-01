@@ -64,7 +64,11 @@ class Session(object):
         self.update_state_user('upload',False)
         self.update_state_user('change_password',False)
         self.update_state_user('change_time_check_updates',False)
+        self.user_info['changer']['old_password'] = False
+        self.user_info['changer']['new_password'] = False
         self.update_state_user('login',True)
+        self.save_user_info()
+
 
     def get_user_info_value(self,value):
         self.update_last_action()
