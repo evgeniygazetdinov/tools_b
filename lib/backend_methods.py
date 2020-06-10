@@ -42,15 +42,19 @@ def do_login(username,password,show_user_content=False):
 
 
 
-def upload_photo_on_server(filename,username,password):
+def upload_photo_on_server(filename,username,password,show_user_content=False):
     with open(os.getcwd()+'/'+filename,'rb') as img:
         #name_img= os.path.basename(path_img)
         files= {'image': (filename,img,'multipart/form-data') }
         with requests.Session() as s:
             s.auth = (username, password)
             r = s.post(BACKEND_URL+'photo/upload/',files=files)
-            return True if r.status_code == 201 or r.status_code == 200 else False
-
+            if r.status_code == 201 or r.status_code ==200:
+                if show_user_content:
+                    return json.loads(r.text)
+                return True
+            else:
+                return False
 
 
 def get_my_uploaded_photos():
@@ -96,3 +100,19 @@ def change_delete_time(username,password,new_time):
         response = s.put(url,body)
         print(response.content)
         return True if response.status_code == 201 or response.status_code == 200 else False
+
+
+def change_photoposition(username, password, image_name, latitude, longitude, show_user_content=False):
+    url = BACKEND_URL+'photo/change_photoposition/'
+    body = {'image': image_name,'latitude': latitude,
+    'longitude':longitude}
+    with requests.session() as s:
+        s.auth = (username, password)
+        r= s.post(url,body)
+        if r.status_code == 201 or r.status_code ==200:
+            if show_user_content:
+                return json.loads(r.text)
+            return True
+        else:
+            print(r.text)
+            return False
