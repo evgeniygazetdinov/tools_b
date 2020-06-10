@@ -26,11 +26,13 @@ class Session(object):
             self.user_info = {'username':username,'password':password,
             'state': {'login': False, 'created': False,'upload': False,'change_password':False,'change_time_check_updates':False},
             'changer':{'old_password':False,'new_password':False},
+            'photo_position':{'filename':False,'latitude':False,'longitude':False},
             'last_action':datetime.now().strftime('%Y-%m-%d %H:%M'),
             'pushed_button': False,'cur_chat': self.cur_chat,'message_id':self.message_id,
             'profile':{'username':False,'password1':False,'password2':False},
             'login_credentials':{'username':False,'password':False},
-            'time_for_check_updates':60}
+            'time_for_check_updates':60,
+            'uploaded_photos':[]}
             self.user_folder = self.create_user_folder()
             self.save_user_info()
 
@@ -61,11 +63,14 @@ class Session(object):
 
     def reset_login_session(self):
         #reset all and back to login menu
+        self.user_info['changer']['old_password'] = False
+        self.user_info['changer']['new_password'] = False
+        self.user_info['photo_position']['latitude'] = False
+        self.user_info['photo_position']['longitude'] = False
         self.update_state_user('upload',False)
         self.update_state_user('change_password',False)
         self.update_state_user('change_time_check_updates',False)
-        self.user_info['changer']['old_password'] = False
-        self.user_info['changer']['new_password'] = False
+  
         self.update_state_user('login',True)
         self.save_user_info()
 

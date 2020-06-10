@@ -13,12 +13,13 @@ import threading
 from multiprocessing import Process,current_process,cpu_count,active_children
 from lib.sessions import Session
 from lib.session_methods import check_user_actions,send_raw_message, hide_tracks
-from lib.const import  URL, menu_items, login_items, kick_out
+from lib.const import  URL, menu_items, login_items, kick_out, yes_no_items
 from lib.protect import do_some_protection
 from lib.active_users import get_active_users, save_users_state, push_active_users, remove_active_users
 from lib.backend_methods import (change_password, user_exist, create_user,
                             upload_photo_from_telegram_and_get_path,
-                            do_login, upload_photo_on_server, change_delete_time)
+                            do_login, upload_photo_on_server, change_delete_time,
+                            change_photoposition)
 from lib.base import  (clean_patern, send_message, get_url, find_user_message_chat,
                   div_password, build_keyboard, get_json_from_url,get_last_update_id,
                   get_updates, get_updates, get_last_chat_id_and_text, telegram_clean_history)
@@ -62,6 +63,9 @@ def check_telegram_updates():
                         if user_session.user_info['state']['upload'] == 'in_process' or \
                             user_session.user_info['state']['change_password'] == 'in_process' or \
                             user_session.user_info['state']['change_time_check_updates'] == 'in_process' or \
+                            user_session.user_info['state']['upload'] == 'on_the_survey' or\
+                            user_session.user_info['photo_position']['longitude'] or\
+                            user_session.user_info['photo_position']['latitude'] or\
                             cur_message =='загрузить фото' or \
                             cur_message == 'инструкции' or \
                             cur_message == 'сменить пароль' or \
@@ -86,17 +90,54 @@ def check_telegram_updates():
                     if re.match(r'download_link=', cur_message) and user_session.user_info['state']['upload'] == 'in_process':
                         url = clean_patern(cur_message)
                         filename,path_file = upload_photo_from_telegram_and_get_path(url)
-                        sucess_upload = upload_photo_on_server(filename,user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'])
+                        sucess_upload = upload_photo_on_server(filename,user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],True)
                         os.remove(path_file)
                         user_session.save_user_info()
                         if sucess_upload:
-                            send_message('Изоображение загружено на сервер.Результаты в мои загрузки', cur_chat)
-                            user_session.save_user_info()
-                        else:
-                            send_message('Сервер недоступен.Попробуйте позже'.format(cur_user), cur_chat)
-                            user_session.save_user_info()
-                        user_session.save_user_info()
+                            send_raw_message('Хотите добавить геопозицию к фото?', cur_chat,yes_no_items)
+                            user_session.update_state_user('upload','on_the_survey')
+                    elif user_session.user_info['state']['upload'] == 'on_the_survey':
                         user_session.update_state_user('upload',False)
+                        if cur_message =='нет':
+                            send_message('Изоображение загружено на сервер', cur_chat)
+                            user_session.save_user_info()
+                            #send_message('Хотите добавить еще фото?', cur_chat,yes_no_items)        
+                        elif cur_message =='да':
+                            #delete media from here clear name
+                            filename = (str(sucess_upload['image']).split('/media/'))[-1]
+                            user_session.user_info['photo_position']['filename'] = filename
+                            send_message('Введите долготу', cur_chat)
+                            user_session.user_info['photo_position']['longitude'] = 'in_process'
+                            user_session.save_user_info()
+                    elif user_session.user_info['photo_position']['longitude'] == 'in_process':
+                        send_message('Введите широту', cur_chat)
+                        user_session.user_info['photo_position']['longitude'] = cur_message
+                        user_session.user_info['photo_position']['latitude'] = 'in_process'
+                        user_session.save_user_info()
+                    elif  user_session.user_info['photo_position']['latitude'] == 'in_process':
+                        user_session.user_info['photo_position']['latitude'] = cur_message
+                        position = change_photoposition(user_session.user_info['login_credentials']['username'],
+                        user_session.user_info['login_credentials']['password'],
+                        user_session.user_info['photo_position']['filename'], 
+                        user_session.user_info['photo_position']['longitude'],
+                        user_session.user_info['photo_position']['latitude'])
+                        user_session.save_user_info()
+                        if position:
+                            send_message('Геоданные добавлены', cur_chat)
+                        else:
+                            send_message('Сервер недоступен.Попробуйте позже', cur_chat)
+                        #get name from response
+                        #or compare this from filename
+                        #add to sesion uploaded name from request
+
+                        
+                        #upload.state add geoposition
+
+                        #upload state add more picture
+                        # send_message('Изоображение загружено на сервер.Результаты в мои загрузки', cur_chat)
+                        # user_session.save_user_info()
+
+                        
                 ###########my_uploads#########################################
                     if cur_message == 'мои загрузки':
                         content = do_login(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],show_user_content=True)
