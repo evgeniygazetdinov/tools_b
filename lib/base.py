@@ -21,6 +21,8 @@ def clean_patern(cur_message):
     link = ''
     if re.match(r'photo=', cur_message):
         link = cur_message.split('photo=')
+    if re.match(r'location=', cur_message):
+        link = cur_message.split('location=')
     if re.match(r'document=', cur_message):
         link = cur_message.split('document=')
     if re.match(r'download_link=', cur_message):
@@ -29,6 +31,7 @@ def clean_patern(cur_message):
         link = cur_message.split('oldpassword=')
     if re.match(r'newpassword=', cur_message):
         link = cur_message.split('newpassword=')
+
     return link[-1]
     """
     def clean_patern(cur_message,patern):
@@ -103,10 +106,7 @@ def find_user_message_chat(results):
         cur_chat = cur_result['message']["chat"]["id"]
         message_id = cur_result['message']['message_id']
         if 'sticker' in cur_result['message']:
-            cur_message = 'sticker'
-            send_message('nice sticker',cur_chat)
-            menu_keyboard = build_keyboard(menu_items)
-            send_message('choose variant',cur_chat,menu_keyboard)
+            cur_message = ''
         elif 'photo' in cur_result['message']:
             file_id_link = 'photo='+'https://api.telegram.org/bot{}/getFile?file_id={}'.format(token, cur_result['message']['photo'][-1]['file_id'])
             cur_message = get_link_for_update_photo(token,file_id_link)
@@ -119,13 +119,18 @@ def find_user_message_chat(results):
                 file_id_link = 'document='+'https://api.telegram.org/bot{}/getFile?file_id={}'.format(token, cur_result['message']['document']['thumb']['file_id'])
                 cur_message = get_link_for_update_photo(token,file_id_link)
                 print(cur_message)
+        elif 'location' in cur_result['message']:
+            cur_message = 'location='+str(cur_result['message']['location'])  
+            cur_chat = cur_result['message']['chat']['id']
+            cur_user = cur_result['message']['chat']['id']
+
         else:
             if 'text' in cur_result['message']:
                 cur_message = cur_result['message']['text']
             else:
                 cur_message = ''
     if 'edited_message' in cur_result:
-        cur_user = cur_result['edited_message']['chat']['username']
+        cur_user = cur_result['edited_message']['chat']['id']
         cur_chat = cur_result['edited_message']["chat"]["id"]
         cur_message = cur_result['edited_message']['text']
 
