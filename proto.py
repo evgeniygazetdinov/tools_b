@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
 print(sys.getdefaultencoding())
+import json
 import unicodedata
 import os
 import requests
@@ -94,50 +95,23 @@ def check_telegram_updates():
                         os.remove(path_file)
                         user_session.save_user_info()
                         if sucess_upload:
-                            send_raw_message('Хотите добавить геопозицию к фото?', cur_chat,yes_no_items)
-                            user_session.update_state_user('upload','on_the_survey')
-                    elif user_session.user_info['state']['upload'] == 'on_the_survey':
-                        user_session.update_state_user('upload',False)
-                        if cur_message =='нет':
-                            send_message('Изоображение загружено на сервер', cur_chat)
-                            user_session.save_user_info()
-                            #send_message('Хотите добавить еще фото?', cur_chat,yes_no_items)        
-                        elif cur_message =='да':
-                            #delete media from here clear name
+                            send_message('Добавьте геопозицию к фото',cur_chat)
                             filename = (str(sucess_upload['image']).split('/media/'))[-1]
                             user_session.user_info['photo_position']['filename'] = filename
-                            send_message('Введите долготу', cur_chat)
-                            user_session.user_info['photo_position']['longitude'] = 'in_process'
-                            user_session.save_user_info()
-                    elif user_session.user_info['photo_position']['longitude'] == 'in_process':
-                        send_message('Введите широту', cur_chat)
-                        user_session.user_info['photo_position']['longitude'] = cur_message
-                        user_session.user_info['photo_position']['latitude'] = 'in_process'
-                        user_session.save_user_info()
-                    elif  user_session.user_info['photo_position']['latitude'] == 'in_process':
-                        user_session.user_info['photo_position']['latitude'] = cur_message
+                            user_session.update_state_user('upload','on_geoposition')              
+                    elif re.match(r'location=',cur_message) and user_session.user_info['state']['upload'] == 'on_geoposition':
+                        #remove 'location=' from str and converting to dict
+                        location_str = (clean_patern(cur_message)).replace("\'", "\"")
+                        location = json.loads(location_str)
                         position = change_photoposition(user_session.user_info['login_credentials']['username'],
                         user_session.user_info['login_credentials']['password'],
                         user_session.user_info['photo_position']['filename'], 
-                        user_session.user_info['photo_position']['longitude'],
-                        user_session.user_info['photo_position']['latitude'])
-                        user_session.save_user_info()
+                        location['longitude'],
+                        location['latitude'])
                         if position:
                             send_message('Геоданные добавлены', cur_chat)
                         else:
                             send_message('Сервер недоступен.Попробуйте позже', cur_chat)
-                        #get name from response
-                        #or compare this from filename
-                        #add to sesion uploaded name from request
-
-                        
-                        #upload.state add geoposition
-
-                        #upload state add more picture
-                        # send_message('Изоображение загружено на сервер.Результаты в мои загрузки', cur_chat)
-                        # user_session.save_user_info()
-
-                        
                 ###########my_uploads#########################################
                     if cur_message == 'мои загрузки':
                         content = do_login(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],show_user_content=True)
@@ -145,16 +119,12 @@ def check_telegram_updates():
                         if content:
                             if len(content['photos']) > 0:
                                 for photo in content['photos']:
-                                    send_message("""
-                                                    id: {} 
-                                                    \n created: {} 
-                                                    \n unique link:
-                                                        {} 
-                                                    \n delete link:
-                                                        {} 
-                                                    \n views:
-                                                        {}
-                                                    \n """.format(photo['id'],photo['created_date'],photo['unique_link'],photo['delete_by_unique_link'],[view for view in photo['views']]), cur_chat)
+                                    send_message("""id: {} создан: {} уникальная ссылка:{}
+                                                    \nгеопозиция:
+                                                    \nширота:{} долгота:{}
+                                                    \nссылка для удаления:{} 
+                                                    \nпросмотры:{}
+                                                    """.format(photo['id'],photo['created_date'],photo['unique_link'],photo['position']['longitude'],photo['position']['latitude'],photo['delete_by_unique_link'],[view for view in photo['views']]), cur_chat)
                                 user_session.save_user_info()
                             else:
                                 send_message('Нет загруженных фотографий', cur_chat)
