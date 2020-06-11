@@ -22,6 +22,7 @@ from lib.backend_methods import (change_password, user_exist, create_user,
                             do_login, upload_photo_on_server, change_delete_time,
                             change_photoposition)
 from lib.base import  (clean_patern, send_message, send_location, get_url, find_user_message_chat,
+
                   div_password, build_keyboard, get_json_from_url,get_last_update_id,
                   get_updates, get_updates, get_last_chat_id_and_text, telegram_clean_history)
 
@@ -99,7 +100,7 @@ def check_telegram_updates():
                             filename = (str(sucess_upload['image']).split('/media/'))[-1]
                             user_session.user_info['photo_position']['filename'] = filename
                             user_session.update_state_user('upload','on_geoposition')
-                            
+
                     elif re.match(r'location=',cur_message) and user_session.user_info['state']['upload'] == 'on_geoposition':
                         #remove 'location=' from str and converting to dict
                         location_str = (clean_patern(cur_message)).replace("\'", "\"")
@@ -129,6 +130,7 @@ def check_telegram_updates():
                                         send_message('отсутствует', cur_chat)
                                     else:
                                         send_location(photo['position']['latitude'],photo['position']['longitude'],cur_chat)
+
                                 user_session.save_user_info()
                             else:
                                 send_message('Нет загруженных фотографий', cur_chat)
