@@ -84,6 +84,10 @@ def send_message(text, chat_id, reply_markup=None):
         url += "&reply_markup={}".format(reply_markup)
     get_url(url)
 
+def send_location(latitude,longitude,chat_id):
+    url= URL+'sendlocation?chat_id={}&latitude={}&longitude={}'.format(chat_id,latitude,longitude)
+    print(url)
+    get_url(url)
 
 
 def check_it_is_password(password,cur_chat):
