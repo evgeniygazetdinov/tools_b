@@ -98,8 +98,7 @@ def check_telegram_updates():
                             send_message('Добавьте геопозицию к фото',cur_chat)
                             filename = (str(sucess_upload['image']).split('/media/'))[-1]
                             user_session.user_info['photo_position']['filename'] = filename
-                            user_session.update_state_user('upload','on_geoposition')
-                            
+                            user_session.update_state_user('upload','on_geoposition')              
                     elif re.match(r'location=',cur_message) and user_session.user_info['state']['upload'] == 'on_geoposition':
                         #remove 'location=' from str and converting to dict
                         location_str = (clean_patern(cur_message)).replace("\'", "\"")
