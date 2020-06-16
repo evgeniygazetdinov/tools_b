@@ -33,6 +33,8 @@ def send_raw_message(text, chat_id, reply_markup=None):
                 #data-dict empty
                 if not any(dict_for_store):
                     dict_for_store[user]=[mes_id]
+                elif user not in dict_for_store:
+                    dict_for_store[user]=[mes_id]
                 else:
                     dict_for_store[user].append(mes_id)
         #if bot action not exist
