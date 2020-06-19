@@ -60,10 +60,7 @@ def check_telegram_updates():
                     #BEGIN new counter user action
                     thread2 = Process(name ="{}".format(cur_user),target=check_user_actions,args = (cur_user, user_session))
                     thread2.start()                
-
-
-                if user_session.user_info['state']['login'] == True:
-                
+                if user_session.user_info['state']['login'] == True:             
                     if user_session.user_info['state']['upload'] == 'in_process' or \
                         user_session.user_info['state']['change_password'] == 'in_process' or \
                         user_session.user_info['state']['change_time_check_updates'] == 'in_process' or \
@@ -81,7 +78,6 @@ def check_telegram_updates():
 
                         user_session.reset_login_session()
                         send_message('выберите вариант', cur_chat, login_keyboard)
-    ####
                 ###############end_session##################################################
                     if cur_message =='завершить сессию':
                         send_message('Досвидания', cur_chat)                      
@@ -114,8 +110,7 @@ def check_telegram_updates():
                         location['latitude'])
                         user_session.update_state_user('upload','on_description')
                         if position:
-                            send_message('Геоданные добавлены', cur_chat)
-                            
+                            send_message('Геоданные добавлены', cur_chat)                      
                         else:
                             send_message('Сервер недоступен.Попробуйте позже', cur_chat)
                         send_message('Добавьте описание к фото', cur_chat)
@@ -141,8 +136,7 @@ def check_telegram_updates():
                                     send_message("""id: {} создан: {} уникальная ссылка:{}
                                                     \nссылка для удаления:{} 
                                                     \nпросмотры:{}
-                                                    """.format(photo['id'],photo['created_date'],photo['unique_link'],photo['delete_by_unique_link'],['\nнет просмотров' if len(photo['views']) == 0 else view for view in photo['views']]), cur_chat)
-                                
+                                                    """.format(photo['id'],photo['created_date'],photo['unique_link'],photo['delete_by_unique_link'],['\nнет просмотров' if len(photo['views']) == 0 else view for view in photo['views']]), cur_chat)           
                                 user_session.save_user_info()
                             else:
                                 send_message('Нет загруженных фотографий', cur_chat)
@@ -235,10 +229,8 @@ def check_telegram_updates():
                                 send_message('Выбирете вариант', cur_chat, login_keyboard)
                             else:
                                 send_message('Неправильный пароль,введите пароль еще раз', cur_chat)
-            
     ##################inside register##########################################################################
                     elif user_session.user_info['state']['created'] == 'in_process':
-
                         if user_session.user_info['profile']['username'] == 'in_process':
                                 exist = user_exist(cur_message)
                                 if exist:
@@ -276,8 +268,6 @@ def check_telegram_updates():
                                 send_message('Пароли не совпадают', cur_chat)
                                 send_message('Попробуйте еще раз ', cur_chat)
                 time.sleep(0.5)
-
-
 def main_flow():
     check_telegram_updates()
     

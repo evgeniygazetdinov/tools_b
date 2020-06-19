@@ -116,6 +116,7 @@ def change_photoposition(username, password, image_name, latitude, longitude, sh
         else:
             print(r.text)
             return False
+          
 
 def change_description(username, password, image_name, description, show_user_content=False):
     url = BACKEND_URL+'photo/change_description/'
@@ -130,3 +131,4 @@ def change_description(username, password, image_name, description, show_user_co
         else:
             print(r.text)
             return False
+
