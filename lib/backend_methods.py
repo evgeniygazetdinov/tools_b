@@ -116,3 +116,17 @@ def change_photoposition(username, password, image_name, latitude, longitude, sh
         else:
             print(r.text)
             return False
+
+def change_description(username, password, image_name, description, show_user_content=False):
+    url = BACKEND_URL+'photo/change_description/'
+    body = {'image': image_name,'description':description}
+    with requests.session() as s:
+        s.auth = (username, password)
+        r= s.post(url,body)
+        if r.status_code == 201 or r.status_code ==200:
+            if show_user_content:
+                return json.loads(r.text)
+            return True
+        else:
+            print(r.text)
+            return False

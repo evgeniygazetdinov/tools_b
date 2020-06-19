@@ -20,7 +20,7 @@ from lib.active_users import get_active_users, save_users_state, push_active_use
 from lib.backend_methods import (change_password, user_exist, create_user,
                             upload_photo_from_telegram_and_get_path,
                             do_login, upload_photo_on_server, change_delete_time,
-                            change_photoposition)
+                            change_photoposition, change_description)
 from lib.base import  (clean_patern, send_message, send_location, get_url, find_user_message_chat,
                   div_password, build_keyboard, get_json_from_url,get_last_update_id,
                   get_updates, get_updates, get_last_chat_id_and_text, telegram_clean_history)
@@ -67,7 +67,7 @@ def check_telegram_updates():
                     if user_session.user_info['state']['upload'] == 'in_process' or \
                         user_session.user_info['state']['change_password'] == 'in_process' or \
                         user_session.user_info['state']['change_time_check_updates'] == 'in_process' or \
-                        user_session.user_info['state']['upload'] == 'on_the_survey' or\
+                        user_session.user_info['state']['upload']  or\
                         user_session.user_info['photo_position']['longitude'] or\
                         user_session.user_info['photo_position']['latitude'] or\
                         cur_message =='загрузить фото' or \
@@ -112,10 +112,25 @@ def check_telegram_updates():
                         user_session.user_info['photo_position']['filename'], 
                         location['longitude'],
                         location['latitude'])
+                        user_session.update_state_user('upload','on_description')
                         if position:
                             send_message('Геоданные добавлены', cur_chat)
+                            
                         else:
                             send_message('Сервер недоступен.Попробуйте позже', cur_chat)
+                        send_message('Добавьте описание к фото', cur_chat)
+                    elif user_session.user_info['state']['upload'] == 'on_description':
+                        description = change_description(user_session.user_info['login_credentials']['username'],
+                        user_session.user_info['login_credentials']['password'],
+                        user_session.user_info['photo_position']['filename'],
+                        cur_message) 
+                        if description:
+                            send_message('Описание  добавлено', cur_chat)
+                            
+                        else:
+                            send_message('Сервер недоступен.Попробуйте позже', cur_chat)
+                        send_message('Перетяните или выберете изоображение или нажмите назад для выхода', cur_chat)
+                        user_session.update_state_user('upload','in_process')
                 ###########my_uploads#########################################
                     if cur_message == 'мои загрузки':
                         content = do_login(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],show_user_content=True)
