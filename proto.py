@@ -136,7 +136,7 @@ def check_telegram_updates():
                                     send_message("""id: {} создан: {} уникальная ссылка:{}
                                                     \nссылка для удаления:{} 
                                                     \nпросмотры:{}
-                                                    """.format(photo['id'],photo['created_date'],photo['unique_link'],photo['delete_by_unique_link'],['\nнет просмотров' if len(photo['views']) == 0 else view for view in photo['views']]), cur_chat)           
+                                                    """.format(photo['id'],photo['created_date'],photo['unique_short_link'],photo['delete_by_unique_link'],['\nнет просмотров' if len(photo['views']) == 0 else view for view in photo['views']]), cur_chat)           
                                 user_session.save_user_info()
                             else:
                                 send_message('Нет загруженных фотографий', cur_chat)
