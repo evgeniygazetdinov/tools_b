@@ -12,18 +12,22 @@ import sys
 import datetime
 import threading
 from multiprocessing import Process,current_process,cpu_count,active_children
+from lib.photo_display_methods import get_uploaded_photos_from_response
 from lib.sessions import Session
 from lib.session_methods import check_user_actions,send_raw_message, hide_tracks
-from lib.const import  URL, menu_items, login_items, kick_out, yes_no_items
+from lib.const import  URL
+from lib.buttons import menu_items, login_items, kick_out, yes_no_items, under_upload_menu
 from lib.protect import do_some_protection
 from lib.active_users import get_active_users, save_users_state, push_active_users, remove_active_users
 from lib.backend_methods import (change_password, user_exist, create_user,
                             upload_photo_from_telegram_and_get_path,
                             do_login, upload_photo_on_server, change_delete_time,
-                            change_photoposition, change_description)
-from lib.base import  (clean_patern, send_message, send_location, get_url, find_user_message_chat,
+                            change_photoposition, change_description,
+                            add_photos_to_upload_list)
+from lib.base import  (build_keyboard,clean_patern, send_message, send_location, get_url, find_user_message_chat,
                   div_password, build_keyboard, get_json_from_url,get_last_update_id,
-                  get_updates, get_updates, get_last_chat_id_and_text, telegram_clean_history)
+                  get_updates, get_updates, get_last_chat_id_and_text, telegram_clean_history,
+                  make_filestring_for_request )
 
 
 def check_telegram_updates():
@@ -96,6 +100,8 @@ def check_telegram_updates():
                         if sucess_upload:
                             send_message('Добавьте геопозицию к фото',cur_chat)
                             filename = (str(sucess_upload['image']).split('/media/'))[-1]
+                            
+                            user_session.user_info['uploaded_photos'].append(filename)
                             user_session.user_info['photo_position']['filename'] = filename
                             user_session.update_state_user('upload','on_geoposition')
                             
@@ -126,21 +132,37 @@ def check_telegram_updates():
                             send_message('Сервер недоступен.Попробуйте позже', cur_chat)
                         send_message('Перетяните или выберете изоображение или нажмите назад для выхода', cur_chat)
                         user_session.update_state_user('upload','in_process')
+                    elif cur_message == 'назад':
+                        if len(user_session.user_info['uploaded_photos']) != 0 :
+                            files = make_filestring_for_request(user_session.user_info['uploaded_photos'])
+                            print(files)
+                            print("#"*100)
+                            add_photos_to_upload_list(user_session.user_info['login_credentials']['username'],
+                        user_session.user_info['login_credentials']['password'],files,True)
                 ###########my_uploads#########################################
                     if cur_message == 'мои загрузки':
-                        content = do_login(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],show_user_content=True)
-                        user_session.save_user_info()
-                        if content:
-                            if len(content['photos']) > 0:
-                                for photo in content['photos']:
-                                    send_message("""id: {} создан: {} уникальная ссылка:{}
-                                                    \nссылка для удаления:{} 
-                                                    \nпросмотры:{}
-                                                    """.format(photo['id'],photo['created_date'],photo['unique_short_link'],photo['delete_by_unique_link'],['\nнет просмотров' if len(photo['views']) == 0 else view for view in photo['views']]), cur_chat)           
-                                user_session.save_user_info()
-                            else:
-                                send_message('Нет загруженных фотографий', cur_chat)
-                                user_session.save_user_info()
+                        send_message('👌',cur_chat,under_upload_menu)
+                        #
+                        #content = do_login(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],show_user_content=True)
+                        #user_session.save_user_info()
+                        #if content:
+
+                            # if len(content['photos']) > 0:
+                            #     for photo in content['photos']:
+                            #         send_message("""id: {} создан: {} уникальная ссылка:{}
+                            #                         \nссылка для удаления:{} 
+                            #                         \nпросмотры:{}
+                            #                         """.format(photo['id'],photo['created_date'],photo['unique_short_link'],photo['delete_by_unique_link'],['\nнет просмотров' if len(photo['views']) == 0 else view for view in photo['views']]), cur_chat)           
+                            #     user_session.save_user_info()
+                            
+                            # else:
+                            #     send_message('Нет загруженных фотографий', cur_chat)
+                            #     user_session.save_user_info()
+                            values = get_uploaded_photos_from_response(content)
+                            for key,value in values.items():
+                                number= range(len(value))
+                                links_with_number = dict(zip(number,value))
+                                send_message("""список {}\n{} """.format(key,value),cur_chat,under_upload_menu)
                 ##########change password######################################
                     if cur_message =='сменить пароль':
                         send_message('Введите текущий пароль', cur_chat)
