@@ -8,7 +8,7 @@ import re
 
 
 #describe methods for work with  api on dv24.website
-
+#refactir on class
 
 def user_exist(username):
     url = BACKEND_URL+'user/exists/'+username+'/'
@@ -30,8 +30,11 @@ def do_login(username,password,show_user_content=False):
     with requests.session() as s:
         s.auth = (username, password)
         r = s.get(url)
-        print(r.status_code)
-        print(r.text)
+        try:
+            print(r.status_code)
+            print(r.text)
+        except:
+            pass
         if r.status_code == 201 or r.status_code ==200:
             if show_user_content:
                 return json.loads(r.text)
@@ -132,3 +135,17 @@ def change_description(username, password, image_name, description, show_user_co
             print(r.text)
             return False
 
+
+def add_photos_to_upload_list(username,password,image_string,show_user_content=False):
+    url = BACKEND_URL+'photo/to_upload_list/'
+    body = {'photos': image_string}
+    with requests.session() as s:
+        s.auth = (username, password)
+        r= s.post(url,body)
+        if r.status_code == 201 or r.status_code ==200:
+            if show_user_content:
+                return json.loads(r.text)
+            return True
+        else:
+            print(r.text)
+            return False

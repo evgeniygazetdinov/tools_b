@@ -32,6 +32,7 @@ class Session(object):
             'profile':{'username':False,'password1':False,'password2':False},
             'login_credentials':{'username':False,'password':False},
             'time_for_check_updates':60,
+            'on_check_photos':{'check_new':False,'check_all':False,'delete_viewed':False},
             'uploaded_photos':[]}
 
             self.user_folder = self.create_user_folder()

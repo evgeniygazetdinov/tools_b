@@ -188,3 +188,20 @@ def create_dir_for_not_exists_file(active_users_path):
         with open(active_users_path, 'w', encoding='utf-8') as f:
             json.dump( {'users':[]}, f, ensure_ascii=False, indent=4)
         
+def make_filestring_for_request(list_with_filenames):
+    #sticky filenames in one string with , as separator
+    separator=','
+    res=''
+    counter=0
+    for filename in list_with_filenames:
+        res+=str(filename)
+        counter+=1
+        if counter ==len(list_with_filenames):
+            continue
+        else:
+            res+=separator
+    return res 
+
+
+
+
