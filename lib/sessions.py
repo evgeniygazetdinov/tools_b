@@ -24,7 +24,9 @@ class Session(object):
             self.save_user_info()
         else:
             self.user_info = {'username':username,'password':password,
-            'state': {'login': False, 'created': False,'upload': False,'change_password':False,'change_time_check_updates':False},
+            'state': {'login': False, 'created': False,
+            'upload': False,'change_password':False,
+            'change_time_check_updates':False},
             'changer':{'old_password':False,'new_password':False},
             'photo_position':{'filename':False,'latitude':False,'longitude':False},
             'last_action':datetime.now().strftime('%Y-%m-%d %H:%M'),
@@ -33,7 +35,9 @@ class Session(object):
             'login_credentials':{'username':False,'password':False},
             'time_for_check_updates':60,
             'on_check_photos':{'check_new':False,'check_all':False,'delete_viewed':False},
-            'uploaded_photos':[]}
+            'uploaded_photos':[],
+            'photos_from_requests':[]}
+     
 
             self.user_folder = self.create_user_folder()
             self.save_user_info()
@@ -46,6 +50,10 @@ class Session(object):
     def update_last_action(self):
         self.user_info['last_action'] = datetime.now().strftime('%Y-%m-%d %H:%M')
 
+
+    def push_photos_from_request(self,photos):
+        self.user_info['photos_from_requests'] = photos
+        self.save_user_info()
 
     def update_state_user(self,state,value,password=False):
         self.update_last_action()

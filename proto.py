@@ -12,7 +12,7 @@ import sys
 import datetime
 import threading
 from multiprocessing import Process,current_process,cpu_count,active_children
-from lib.photo_display_methods import get_uploaded_photos_from_response
+from lib.photo_display_methods import get_uploaded_photos_from_response,get_newest_upload_list
 from lib.sessions import Session
 from lib.session_methods import check_user_actions,send_raw_message, hide_tracks
 from lib.const import  URL
@@ -76,6 +76,8 @@ def check_telegram_updates():
                         cur_message == 'сменить пароль' or \
                         cur_message == 'сменить время чистки':
                             send_raw_message('👌', cur_chat, kick_out)
+                    elif cur_message == 'мои загрузки':
+                        send_message('выберите вариант', cur_chat, under_upload_menu)
                     else:
                             send_message('выберите вариант', cur_chat, login_keyboard)
                     if cur_message == 'назад':
@@ -140,31 +142,31 @@ def check_telegram_updates():
                             add_photos_to_upload_list(user_session.user_info['login_credentials']['username'],
                         user_session.user_info['login_credentials']['password'],files,True)
                 ###########my_uploads#########################################
-                    if cur_message == 'мои загрузки':
-                        send_message('👌',cur_chat,under_upload_menu)
-                        #
-                        #content = do_login(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],show_user_content=True)
-                        #user_session.save_user_info()
-                        #if content:
+                    #if cur_message == 'мои загрузки':
+                    elif cur_message == 'веcь список':
+                        content = do_login(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],show_user_content=True)
+                        values = get_uploaded_photos_from_response(content)
+                        for key,value in values.items():
+                           number= range(len(value))
+                           send_message("""список {}\n{}""".format(key,value),cur_chat,under_upload_menu)
+                    elif cur_message == 'новый список':
+                        content = do_login(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],show_user_content=True)
+                        
+                        values = get_newest_upload_list(content)
+                        for key,value in values.items():
+                          send_message("""список {}\n{}""".format(key,value),cur_chat,under_upload_menu)
 
-                            # if len(content['photos']) > 0:
-                            #     for photo in content['photos']:
-                            #         send_message("""id: {} создан: {} уникальная ссылка:{}
-                            #                         \nссылка для удаления:{} 
-                            #                         \nпросмотры:{}
-                            #                         """.format(photo['id'],photo['created_date'],photo['unique_short_link'],photo['delete_by_unique_link'],['\nнет просмотров' if len(photo['views']) == 0 else view for view in photo['views']]), cur_chat)           
-                            #     user_session.save_user_info()
-                            
-                            # else:
-                            #     send_message('Нет загруженных фотографий', cur_chat)
-                            #     user_session.save_user_info()
-                            values = get_uploaded_photos_from_response(content)
-                            for key,value in values.items():
-                                number= range(len(value))
-                                links_with_number = dict(zip(number,value))
-                                send_message("""список {}\n{} """.format(key,value),cur_chat,under_upload_menu)
+                        
+                        
+                    
+                    
+                        
+                    elif cur_message == 'удалить просмотренные':
+                        send_message("удалить просмотренные",cur_chat)
+                        
+
                 ##########change password######################################
-                    if cur_message =='сменить пароль':
+                    elif cur_message =='сменить пароль':
                         send_message('Введите текущий пароль', cur_chat)
                         user_session.user_info['changer']['old_password'] = 'in_process'
                         user_session.update_state_user('change_password','in_process')
