@@ -151,6 +151,7 @@ def check_telegram_updates():
                            send_message("""список {}\n{}""".format(key,value),cur_chat,under_upload_menu)
                     elif cur_message == 'новый список':
                         content = do_login(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],show_user_content=True)
+                        
                         values = get_newest_upload_list(content)
                         for key,value in values.items():
                           send_message("""список {}\n{}""".format(key,value),cur_chat,under_upload_menu)

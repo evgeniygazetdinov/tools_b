@@ -37,6 +37,7 @@ class Session(object):
             'on_check_photos':{'check_new':False,'check_all':False,'delete_viewed':False},
             'uploaded_photos':[],
             'photos_from_requests':[]}
+     
 
             self.user_folder = self.create_user_folder()
             self.save_user_info()
