@@ -84,10 +84,6 @@ class Session(object):
         self.save_user_info()
 
 
-    def put_user_photos_to_session(self,photos):
-        self.user_info['uploaded_photos'] = photos
-        self.save_user_info()
-
     def get_user_info_value(self,value):
         self.update_last_action()
         return self.user_info[value]

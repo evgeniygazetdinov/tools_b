@@ -78,7 +78,7 @@ def check_telegram_updates():
                         cur_message == 'сменить время чистки':
                             send_raw_message('👌', cur_chat, kick_out)
                     elif cur_message == 'мои загрузки' or user_session.user_info['on_check_photos']:
-                       send_message('выберите вариант', cur_chat, under_upload_menu)
+                       send_message('👌', cur_chat, under_upload_menu)
                     else:
                         send_message('выберите вариант', cur_chat, login_keyboard)
                     if cur_message == 'назад' and  user_session.user_info['on_check_photos']:
@@ -166,8 +166,6 @@ def check_telegram_updates():
                         content = do_login(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],show_user_content=True)
                         clean_empty_uploadlists(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],content)
                         #store content to session and clean empty upload list  for right display photos
-                        user_session.put_user_photos_to_session(content)
-                        print(user_session.user_info['photos_from_requests'])
                         values = get_newest_upload_list(content)
                         for key,value in values.items():
                             send_message("""список {}\n{}""".format(key,value),cur_chat,under_upload_menu)
@@ -178,7 +176,10 @@ def check_telegram_updates():
                         viewed_photos = delete_viewed_photos(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],content)
                         for key,value in viewed_photos.items():
                             send_message('удалено  \n по ссылке {} \n просмотры{}'.format(key,value['views']),cur_chat)
-                        send_message('итого {}'.format(len(viewed_photos)),cur_chat)
+                        if len(viewed_photos) == 0 :
+                            send_message('нет просмотренных фотографий' ,cur_chat)
+                        else:
+                            send_message('итого {}'.format(len(viewed_photos)),cur_chat)
                     
                     
                     
