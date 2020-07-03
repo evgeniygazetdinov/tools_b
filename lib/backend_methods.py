@@ -149,3 +149,14 @@ def add_photos_to_upload_list(username,password,image_string,show_user_content=F
         else:
             print(r.text)
             return False
+
+
+
+def remove_uploadlist(username,password,date_upload):
+    url = BACKEND_URL+'photo/remove_upload_list/'
+    body = {'date_upload':date_upload}
+    print(date_upload)
+    response=requests.post(url, body, auth=(username, password))
+    print(response.content) if response.status_code == 201 or response.status_code == 200 else print(str(response.status_code)+'wrong with upload')
+    
+

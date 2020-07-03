@@ -34,10 +34,10 @@ class Session(object):
             'profile':{'username':False,'password1':False,'password2':False},
             'login_credentials':{'username':False,'password':False},
             'time_for_check_updates':60,
-            'on_check_photos':{'check_new':False,'check_all':False,'delete_viewed':False},
+            'on_check_photos':False,
             'uploaded_photos':[],
             'photos_from_requests':[]}
-     
+
 
             self.user_folder = self.create_user_folder()
             self.save_user_info()
@@ -73,6 +73,7 @@ class Session(object):
 
     def reset_login_session(self):
         #reset all and back to login menu
+        self.user_info['on_check_photos'] = False
         self.user_info['changer']['old_password'] = False
         self.user_info['changer']['new_password'] = False
         self.user_info['photo_position']['latitude'] = False
@@ -83,6 +84,10 @@ class Session(object):
         self.update_state_user('login',True)
         self.save_user_info()
 
+
+    def put_user_photos_to_session(self,photos):
+        self.user_info['uploaded_photos'] = photos
+        self.save_user_info()
 
     def get_user_info_value(self,value):
         self.update_last_action()
