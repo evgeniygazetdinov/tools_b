@@ -1,10 +1,29 @@
 from collections import OrderedDict
-from time import time
+import time
 import datetime
 import pytz
-import aiohttp
-import asyncio
-from lib.history import remove_messages
+import requests
+from lib.backend_methods import remove_uploadlist
+
+
+
+
+def find_empty_uploadlist(content):
+    null_lists = []
+    lists = content['upload_list']
+    for lis in lists:
+        if len(lis['photos']) == 0:
+            null_lists.append(lis['date_upload'])
+    return null_lists
+
+
+def clean_empty_uploadlists(username,password,content):
+    null_uploadlists = find_empty_uploadlist(content)
+    if len(null_uploadlists) != 0 :
+        for null_list in null_uploadlists:
+            remove_uploadlist(username,password,null_list)
+
+
 
 def extract_lists_from_response(lists):
     res = OrderedDict()
@@ -57,29 +76,56 @@ def get_newest_upload_list(response):
         return None
 
 
-def remove_from_list(viewed_photo):
+
+def remove_photos(urls,username,password):
+    print('this my urls')
+    print(urls)
+    
+    for url in urls:
+        response=requests.get(url, auth=(username, password))
+        print(response.content) if response.status_code == 201 or response.status_code == 200 else print(response.status_code)
+
+def remove_from_list(login,password,viewed_photo):
     start_time = time.time()
-    asyncio.get_event_loop().run_until_complete(remove_messages(viewed_photo))
+    remove_photos(viewed_photo,login,password)
     duration = time.time() - start_time
+    print(viewed_photo)
+    print(f"REMOVE {len(viewed_photo)} messages in {duration} seconds")
+
+
+    
+
+
+
+
+
+
 
 
 def find_viewed_photos(content):
-    res = []
+    res = {}
     lists = content['upload_list']
     without_lists = content['photos_without_upload_list']
     for li in lists:
         for photo in li['photos']:
             if len(photo['views']) !=0:
-                res.append(photo['delete_by_unique_link'])
+                res[photo['unique_short_link']] = {'views':photo['views'],'delete_link':photo['delete_by_unique_link']}
     for lis in without_lists:
         if len(lis['views']) != 0:
-            res.append(photo['delete_by_unique_link'])
+           res[lis['unique_short_link']] = {'views':lis['views'],'delete_link':lis['delete_by_unique_link']}
+
     return res
 
-
-def delete_viewed_photos(content):
-    links = find_viewed_photos(content)
-    #remove_from_list(links)
+def extract_delete_links(links):
+    delete_links = []
     print(links)
+    for key,value in links.items():
+        delete_links.append(value['delete_link'])
+    return delete_links
 
+def delete_viewed_photos(login, password, content):
+    links = find_viewed_photos(content)
+    for_delete = extract_delete_links(links)
+    remove_from_list(login, password, for_delete)
+    return links
 
