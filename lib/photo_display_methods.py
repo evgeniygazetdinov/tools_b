@@ -93,15 +93,6 @@ def remove_from_list(login,password,viewed_photo):
     print(f"REMOVE {len(viewed_photo)} messages in {duration} seconds")
 
 
-    
-
-
-
-
-
-
-
-
 def find_viewed_photos(content):
     res = {}
     lists = content['upload_list']

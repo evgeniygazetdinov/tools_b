@@ -14,6 +14,7 @@ import threading
 from multiprocessing import Process,current_process,cpu_count,active_children
 from lib.photo_display_methods import (get_uploaded_photos_from_response,get_newest_upload_list,
                                     delete_viewed_photos,clean_empty_uploadlists)
+
 from lib.sessions import Session
 from lib.session_methods import check_user_actions,send_raw_message, hide_tracks
 from lib.const import  URL
@@ -79,6 +80,7 @@ def check_telegram_updates():
                             send_raw_message('👌', cur_chat, kick_out)
                     elif cur_message == 'мои загрузки' or user_session.user_info['on_check_photos']:
                        send_message('выберите вариант', cur_chat, under_upload_menu)
+
                     else:
                         send_message('выберите вариант', cur_chat, login_keyboard)
                     if cur_message == 'назад' and  user_session.user_info['on_check_photos']:
@@ -114,6 +116,7 @@ def check_telegram_updates():
                                 user_session.user_info['uploaded_photos'].append(filename)
                                 user_session.user_info['photo_position']['filename'] = filename
                                 user_session.update_state_user('upload','on_geoposition')
+
                             
                     elif re.match(r'location=',cur_message) and user_session.user_info['state']['upload'] == 'on_geoposition':
                         #remove 'location=' from str and converting to dict
@@ -157,12 +160,12 @@ def check_telegram_updates():
                         clean_empty_uploadlists(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],content)
                         #store content to session and clean empty upload list  for right display photos
                         
+
                         values = get_uploaded_photos_from_response(content)
                         for key,value in values.items():
                            number= range(len(value))
                            send_message("""список {}\n{}""".format(key,value),cur_chat,under_upload_menu)
-                    elif cur_message == 'новый список':
-                        
+                    elif cur_message == 'новый список':              
                         content = do_login(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],show_user_content=True)
                         clean_empty_uploadlists(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],content)
                         #store content to session and clean empty upload list  for right display photos
@@ -185,6 +188,7 @@ def check_telegram_updates():
                    
                     
         
+
                         
 
                 ##########change password######################################

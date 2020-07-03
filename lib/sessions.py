@@ -38,6 +38,7 @@ class Session(object):
             'uploaded_photos':[],
             'photos_from_requests':[]}
 
+
             self.user_folder = self.create_user_folder()
             self.save_user_info()
 
