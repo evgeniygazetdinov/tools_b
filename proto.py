@@ -163,7 +163,7 @@ def check_telegram_updates():
                                 send_message("""список {}\nссылки:{}
                                  \n просмотры:{}""".format(key,[val['link'] for val in value ],['отсутствуют' if len(val['views']) == 0 else val['views'] for val in value ]),cur_chat,under_upload_menu)
                             else:    
-                                send_message("""список {}\nссылки:{} \n просмотры{}""".format(key,value['link'],[v for v in value['views']]),cur_chat,under_upload_menu)
+                                send_message("""список {}\nссылки:{} \n просмотры{}""".format(key,value['link'],['отсутствуют' if len(value['views']) == 0 else value['views']]),cur_chat,under_upload_menu)
                     elif cur_message == 'новый список':
                         
                         content = do_login(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],show_user_content=True)
@@ -172,25 +172,23 @@ def check_telegram_updates():
                         values = get_newest_upload_list(content)
                         for key,value in values.items():
                             if isinstance(value, list):
-                                send_message("""список {}\nссылки:{} \n просмотры{}""".format(key,[v for v in value['link']],[v for v in value['views']]),cur_chat,under_upload_menu)
+                                send_message("""список {}\nссылки:{}
+                                    \n просмотры:{}""".format(key,[val['link'] for val in value ],['отсутствуют' if len(val['views']) == 0 else val['views'] for val in value ]),cur_chat,under_upload_menu)
                             else:    
                                 send_message("""список {}\nссылки:{} \n просмотры{}""".format(key,value['link'],[v for v in value['views']]),cur_chat,under_upload_menu)
                     elif cur_message == 'удалить просмотренные':
-                        content = do_login(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],show_user_content=True)
-                        clean_empty_uploadlists(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],content)
-                        #store content to session and clean empty upload list  for right display photos
-                        viewed_photos = delete_viewed_photos(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],content)
-                        print("&"*100)
-                        print(viewed_photos)
-                        for key,value in viewed_photos.items():
-                            if isinstance(value, list):
-                                send_message("""удалено  \n по ссылке {} \n просмотры{}""".format(key,[v for v in value['link']],[v for v in value['views']]),cur_chat)
-                            else:    
+                            content = do_login(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],show_user_content=True)
+                            clean_empty_uploadlists(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],content)
+                            #store content to session and clean empty upload list  for right display photos
+                            viewed_photos = delete_viewed_photos(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],content)
+                            print("&"*100)
+                            print(viewed_photos)
+                            for key,value in viewed_photos.items():
                                 send_message('удалено  \n по ссылке {} \n просмотры{}'.format(key,[v for v in value['views']]),cur_chat)
-                        if len(viewed_photos) == 0 :
-                            send_message('нет просмотренных фотографий' ,cur_chat)
-                        else:
-                            send_message('итого {}'.format(len(viewed_photos)),cur_chat)
+                            if len(viewed_photos) == 0 :
+                                send_message('нет просмотренных фотографий' ,cur_chat)
+                            else:
+                                send_message('итого {}'.format(len(viewed_photos)),cur_chat)
                     
                     
                     
