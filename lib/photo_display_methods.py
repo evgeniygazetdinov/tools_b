@@ -24,20 +24,28 @@ def clean_empty_uploadlists(username,password,content):
             remove_uploadlist(username,password,null_list)
 
 
+def take_view_and_link(lists):
+    photos = lists['photos']
+    photos_resourses = []
+    for photo in photos:
+        views = photo['views']
+        link = photo['unique_short_link']
+        photos_resourses.append({'views':views,'link': link})
+    return photos_resourses
+
+
 
 def extract_lists_from_response(lists):
     res = OrderedDict()
     for lis in lists:
-        for key,value in lis.items():
-            res[lis['date_upload']] = [photo['unique_short_link'] for photo in lis['photos']]
+            res[lis['date_upload']] = take_view_and_link(lis)
     return res
     
 def make_fake_list_based_on_photos(photos_without_list):
     res = OrderedDict()
     for photo in photos_without_list:
-        res[photo['created_date']]=photo['unique_short_link']
+        res[photo['created_date']]={'views':photo['views'],'link':photo['unique_short_link']}
     return res
-
 
 
 
@@ -49,6 +57,7 @@ def get_uploaded_photos_from_response(response):
     if response['upload_list']:
         true_list = extract_lists_from_response(response['upload_list'])
         uploads.update(true_list)
+    print(uploads)
     return uploads
 
 def from_string_to_datetimes(uploads_lists):
@@ -78,8 +87,6 @@ def get_newest_upload_list(response):
 
 
 def remove_photos(urls,username,password):
-    print('this my urls')
-    print(urls)
     
     for url in urls:
         response=requests.get(url, auth=(username, password))
@@ -89,16 +96,7 @@ def remove_from_list(login,password,viewed_photo):
     start_time = time.time()
     remove_photos(viewed_photo,login,password)
     duration = time.time() - start_time
-    print(viewed_photo)
     print(f"REMOVE {len(viewed_photo)} messages in {duration} seconds")
-
-
-    
-
-
-
-
-
 
 
 
@@ -118,7 +116,6 @@ def find_viewed_photos(content):
 
 def extract_delete_links(links):
     delete_links = []
-    print(links)
     for key,value in links.items():
         delete_links.append(value['delete_link'])
     return delete_links
