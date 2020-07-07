@@ -79,8 +79,7 @@ def check_telegram_updates():
                         cur_message == 'сменить время чистки':
                             send_raw_message('👌', cur_chat, kick_out)
                     elif cur_message == 'мои загрузки' or user_session.user_info['on_check_photos']:
-                       send_message('выберите вариант', cur_chat, under_upload_menu)
-
+                       send_message('👌', cur_chat, under_upload_menu)
                     else:
                         send_message('выберите вариант', cur_chat, login_keyboard)
                     if cur_message == 'назад' and  user_session.user_info['on_check_photos']:
@@ -116,7 +115,6 @@ def check_telegram_updates():
                                 user_session.user_info['uploaded_photos'].append(filename)
                                 user_session.user_info['photo_position']['filename'] = filename
                                 user_session.update_state_user('upload','on_geoposition')
-
                             
                     elif re.match(r'location=',cur_message) and user_session.user_info['state']['upload'] == 'on_geoposition':
                         #remove 'location=' from str and converting to dict
@@ -158,8 +156,39 @@ def check_telegram_updates():
                     elif cur_message == 'веcь список':
                         content = do_login(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],show_user_content=True)
                         clean_empty_uploadlists(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],content)
-                        #store content to session and clean empty upload list  for right display photos
+                        #store content to session and clean empty upload list  for right display photo
+                        values = get_uploaded_photos_from_response(content)
+                        for key,value in values.items():
+                            if isinstance(value, list):
+                                send_message("""список {}\nссылки:{}
+                                 \n просмотры:{}""".format(key,[val['link'] for val in value ],['отсутствуют' if len(val['views']) == 0 else val['views'] for val in value ]),cur_chat,under_upload_menu)
+                            else:    
+                                send_message("""список {}\nссылки:{} \n просмотры{}""".format(key,value['link'],['отсутствуют' if len(value['views']) == 0 else value['views']]),cur_chat,under_upload_menu)
+                    elif cur_message == 'новый список':
                         
+                        content = do_login(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],show_user_content=True)
+                        clean_empty_uploadlists(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],content)
+                        #store content to session and clean empty upload list  for right display photos
+                        values = get_newest_upload_list(content)
+                        for key,value in values.items():
+                            if isinstance(value, list):
+                                send_message("""список {}\nссылки:{}
+                                    \n просмотры:{}""".format(key,[val['link'] for val in value ],['отсутствуют' if len(val['views']) == 0 else val['views'] for val in value ]),cur_chat,under_upload_menu)
+                            else:    
+                                send_message("""список {}\nссылки:{} \n просмотры{}""".format(key,value['link'],[v for v in value['views']]),cur_chat,under_upload_menu)
+                    elif cur_message == 'удалить просмотренные':
+                            content = do_login(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],show_user_content=True)
+                            clean_empty_uploadlists(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],content)
+                            #store content to session and clean empty upload list  for right display photos
+                            viewed_photos = delete_viewed_photos(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],content)
+                            print("&"*100)
+                            print(viewed_photos)
+                            for key,value in viewed_photos.items():
+                                send_message('удалено  \n по ссылке {} \n просмотры{}'.format(key,[v for v in value['views']]),cur_chat)
+                            if len(viewed_photos) == 0 :
+                                send_message('нет просмотренных фотографий' ,cur_chat)
+                            else:
+                                send_message('итого {}'.format(len(viewed_photos)),cur_chat)
 
                         values = get_uploaded_photos_from_response(content)
                         for key,value in values.items():
@@ -182,13 +211,6 @@ def check_telegram_updates():
                         for key,value in viewed_photos.items():
                             send_message('удалено  \n по ссылке {} \n просмотры{}'.format(key,value['views']),cur_chat)
                         send_message('итого {}'.format(len(viewed_photos)),cur_chat)
-                    
-                    
-                    
-                   
-                    
-        
-
                         
 
                 ##########change password######################################
