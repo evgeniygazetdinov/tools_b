@@ -37,7 +37,6 @@ class Session(object):
             'on_check_photos':False,
             'uploaded_photos':[],
             'photos_from_requests':[]}
-
             self.user_folder = self.create_user_folder()
             self.save_user_info()
 
@@ -83,6 +82,10 @@ class Session(object):
         self.update_state_user('login',True)
         self.save_user_info()
 
+
+    def put_user_photos_to_session(self,photos):
+        self.user_info['uploaded_photos'] = photos
+        self.save_user_info()
 
     def get_user_info_value(self,value):
         self.update_last_action()

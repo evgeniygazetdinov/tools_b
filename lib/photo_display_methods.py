@@ -37,9 +37,10 @@ def take_view_and_link(lists):
 
 def extract_lists_from_response(lists):
     res = OrderedDict()
-    for lis in lists:
             res[lis['date_upload']] = take_view_and_link(lis)
-    return res
+        for key,value in lis.items():
+            res[lis['date_upload']] = [photo['unique_short_link'] for photo in lis['photos']]
+
     
 def make_fake_list_based_on_photos(photos_without_list):
     res = OrderedDict()
@@ -57,7 +58,6 @@ def get_uploaded_photos_from_response(response):
     if response['upload_list']:
         true_list = extract_lists_from_response(response['upload_list'])
         uploads.update(true_list)
-    print(uploads)
     return uploads
 
 def from_string_to_datetimes(uploads_lists):
@@ -87,7 +87,6 @@ def get_newest_upload_list(response):
 
 
 def remove_photos(urls,username,password):
-    
     for url in urls:
         response=requests.get(url, auth=(username, password))
         print(response.content) if response.status_code == 201 or response.status_code == 200 else print(response.status_code)
@@ -97,6 +96,7 @@ def remove_from_list(login,password,viewed_photo):
     remove_photos(viewed_photo,login,password)
     duration = time.time() - start_time
     print(f"REMOVE {len(viewed_photo)} messages in {duration} seconds")
+
 
 
 

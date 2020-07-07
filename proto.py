@@ -14,6 +14,7 @@ import threading
 from multiprocessing import Process,current_process,cpu_count,active_children
 from lib.photo_display_methods import (get_uploaded_photos_from_response,get_newest_upload_list,
                                     delete_viewed_photos,clean_empty_uploadlists)
+
 from lib.sessions import Session
 from lib.session_methods import check_user_actions,send_raw_message, hide_tracks
 from lib.const import  URL
@@ -155,8 +156,7 @@ def check_telegram_updates():
                     elif cur_message == 'веcь список':
                         content = do_login(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],show_user_content=True)
                         clean_empty_uploadlists(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],content)
-                        #store content to session and clean empty upload list  for right display photos
-                        
+                        #store content to session and clean empty upload list  for right display photo
                         values = get_uploaded_photos_from_response(content)
                         for key,value in values.items():
                             if isinstance(value, list):
@@ -189,12 +189,28 @@ def check_telegram_updates():
                                 send_message('нет просмотренных фотографий' ,cur_chat)
                             else:
                                 send_message('итого {}'.format(len(viewed_photos)),cur_chat)
-                    
-                    
-                    
-                   
-                    
-        
+
+                        values = get_uploaded_photos_from_response(content)
+                        for key,value in values.items():
+                           number= range(len(value))
+                           send_message("""список {}\n{}""".format(key,value),cur_chat,under_upload_menu)
+                    elif cur_message == 'новый список':              
+                        content = do_login(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],show_user_content=True)
+                        clean_empty_uploadlists(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],content)
+                        #store content to session and clean empty upload list  for right display photos
+                        user_session.put_user_photos_to_session(content)
+                        print(user_session.user_info['photos_from_requests'])
+                        values = get_newest_upload_list(content)
+                        for key,value in values.items():
+                            send_message("""список {}\n{}""".format(key,value),cur_chat,under_upload_menu)
+                    elif cur_message == 'удалить просмотренные':
+                        content = do_login(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],show_user_content=True)
+                        clean_empty_uploadlists(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],content)
+                        #store content to session and clean empty upload list  for right display photos
+                        viewed_photos = delete_viewed_photos(user_session.user_info['login_credentials']['username'],user_session.user_info['login_credentials']['password'],content)
+                        for key,value in viewed_photos.items():
+                            send_message('удалено  \n по ссылке {} \n просмотры{}'.format(key,value['views']),cur_chat)
+                        send_message('итого {}'.format(len(viewed_photos)),cur_chat)
                         
 
                 ##########change password######################################
