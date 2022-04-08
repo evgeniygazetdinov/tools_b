@@ -1,6 +1,6 @@
 import json
 import os
-from lib.const import URL
+from .const import URL
 import aiohttp
 import asyncio
 import requests

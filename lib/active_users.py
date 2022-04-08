@@ -1,6 +1,6 @@
-from lib.base import create_dir_for_not_exists_file
+from .base import create_dir_for_not_exists_file
 import os
-from lib.const import active_users_path
+from .const import active_users_path
 import json
 
 # list  with active_users: here methods discribe that

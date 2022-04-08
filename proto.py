@@ -13,31 +13,31 @@ import sys
 import datetime
 import threading
 from multiprocessing import Process, current_process, cpu_count, active_children
-from lib.photo_display_methods import (
+from .lib.photo_display_methods import (
     get_uploaded_photos_from_response,
     get_newest_upload_list,
     delete_viewed_photos,
     clean_empty_uploadlists,
 )
 
-from lib.sessions import Session
-from lib.session_methods import check_user_actions, send_raw_message, hide_tracks
-from lib.const import URL
-from lib.buttons import (
+from .lib.sessions import Session
+from .lib.session_methods import check_user_actions, send_raw_message, hide_tracks
+from .lib.const import URL
+from .lib.buttons import (
     menu_items,
     login_items,
     kick_out,
     yes_no_items,
     under_upload_menu,
 )
-from lib.protect import do_some_protection
-from lib.active_users import (
+from .lib.protect import do_some_protection
+from .lib.active_users import (
     get_active_users,
     save_users_state,
     push_active_users,
     remove_active_users,
 )
-from lib.backend_methods import (
+from .lib.backend_methods import (
     change_password,
     user_exist,
     create_user,
@@ -49,7 +49,7 @@ from lib.backend_methods import (
     change_description,
     add_photos_to_upload_list,
 )
-from lib.base import (
+from .lib.base import (
     build_keyboard,
     clean_patern,
     send_message,

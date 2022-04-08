@@ -1,15 +1,15 @@
 import time
-from lib.const import URL
-from lib.buttons import raw_menu_keyboard
-from lib.base import send_message
-from lib.history import (
+from .const import URL
+from .buttons import raw_menu_keyboard
+from .base import send_message
+from .history import (
     create_links_for_delete,
     clean_history,
     delete_user_ids_from_bot_actions,
     store_action,
     get_path,
 )
-from lib.active_users import remove_active_users
+from .active_users import remove_active_users
 
 # file has method for be executed with session/ each push button will  be check user time and store message id for clean history
 import requests

@@ -1,7 +1,7 @@
 import urllib
 import re
-from lib.const import URL, token
-from lib.history import save_action
+from .const import URL, token
+from .history import save_action
 import requests
 import json
 import time
