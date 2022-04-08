@@ -1,7 +1,7 @@
 import requests
 import json
-from lib.const import BACKEND_URL, URL
-from lib.base import send_message
+from .const import BACKEND_URL, URL
+from .base import send_message
 from urllib import request, parse
 import os
 import re

@@ -1,5 +1,5 @@
 import json.decoder
-from lib.base import build_keyboard
+from .base import build_keyboard
 
 raw_menu_keyboard = {
     "one_time_keyboard": True,

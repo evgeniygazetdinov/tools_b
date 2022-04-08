@@ -3,7 +3,7 @@ import time
 import datetime
 import pytz
 import requests
-from lib.backend_methods import remove_uploadlist
+from .backend_methods import remove_uploadlist
 
 
 
@@ -37,9 +37,9 @@ def take_view_and_link(lists):
 
 def extract_lists_from_response(lists):
     res = OrderedDict()
-            res[lis['date_upload']] = take_view_and_link(lis)
-        for key,value in lis.items():
-            res[lis['date_upload']] = [photo['unique_short_link'] for photo in lis['photos']]
+    res[lis['date_upload']] = take_view_and_link(lis)
+    for key,value in lis.items():
+        res[lis['date_upload']] = [photo['unique_short_link'] for photo in lis['photos']]
 
     
 def make_fake_list_based_on_photos(photos_without_list):
