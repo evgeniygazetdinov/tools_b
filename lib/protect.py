@@ -2,9 +2,6 @@ import socks
 import socket
 from urllib.request import Request, urlopen
 from bs4 import BeautifulSoup
-import requests
-
-# set socks5 proxy to use tor
 
 
 def do_some_protection():
