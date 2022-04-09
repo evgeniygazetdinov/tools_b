@@ -138,9 +138,12 @@ async def remove_messages(sites):
     async with aiohttp.ClientSession() as session:
         tasks = []
         for url in sites:
-            task = asyncio.ensure_future(do_request(session, url))
-            asyncio.sleep(0.1)
-            tasks.append(task)
+            try:
+                task = asyncio.ensure_future(do_request(session, url))
+                asyncio.sleep(0.1)
+                tasks.append(task)
+            except RuntimeWarning:
+                pass
         await asyncio.gather(*tasks, return_exceptions=True)
 
 
