@@ -24,7 +24,7 @@ psycopg2-binary==2.8.2
 PySocks==1.7.1
 pyTelegramBotAPI==3.6.7
 pytz==2019.3
-requests==2.23.0
+requests==2.31.0
 schedule==0.6.0
 six==1.14.0
 soupsieve==2.0
