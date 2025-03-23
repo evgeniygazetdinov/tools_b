@@ -67,8 +67,7 @@ async def get_url(url):
         async with session.get(url) as response:
             content = await response.text()
             # save bot action here
-            save_action(response)
-            print(content)
+            save_action(content)
             return content
 
 
@@ -158,7 +157,6 @@ def find_user_message_chat(results):
 
 async def get_json_from_url(url):
     content = await get_url(url)
-    print('sa')
     js = json.loads(content)
     return js
 

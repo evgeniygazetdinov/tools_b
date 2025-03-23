@@ -65,7 +65,7 @@ def cover_user_tracks(user):
 
 
 def save_action(content):
-    content = content.json()
+    content = json.loads(content)
     if "result" in content:
         if len(content["result"]) != 0:
             cur_result = content["result"]
