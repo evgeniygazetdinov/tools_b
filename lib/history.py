@@ -1,9 +1,8 @@
 import json
 import os
-from .const import URL
+from lib.const import URL
 import aiohttp
 import asyncio
-import requests
 import time
 
 # here save user and bot message id into file and methods for bring this

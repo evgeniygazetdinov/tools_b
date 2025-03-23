@@ -1,7 +1,6 @@
 from collections import OrderedDict
 import time
 import datetime
-import pytz
 import requests
 from .backend_methods import remove_uploadlist
 

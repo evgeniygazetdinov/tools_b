@@ -1,11 +1,12 @@
 import urllib
 import re
-from .const import URL, token
-from .history import save_action
+from lib.const import URL, token
+from lib.history import save_action
 import requests
 import json
 import time
 import os
+import aiohttp
 
 menu_items = ["create_profile", "login", "help"]
 get_file = "https://api.telegram.org/bot/getFile?file_id="
@@ -61,13 +62,14 @@ def build_keyboard(items):
     return json.dumps(reply_markup)
 
 
-def get_url(url):
-    response = requests.get(url)
-    content = response.content.decode("utf8")
-    # save bot action here
-    save_action(response)
-    print(content)
-    return content
+async def get_url(url):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            content = await response.text()
+            # save bot action here
+            save_action(response)
+            print(content)
+            return content
 
 
 def div_password(password):
@@ -154,17 +156,18 @@ def find_user_message_chat(results):
     return cur_user, cur_chat, cur_message, message_id
 
 
-def get_json_from_url(url):
-    content = get_url(url)
+async def get_json_from_url(url):
+    content = await get_url(url)
+    print('sa')
     js = json.loads(content)
     return js
 
 
-def get_updates(offset=None):
+async def get_updates(offset=None):
     url = URL + "getUpdates"
     if offset:
         url += "?offset={}".format(offset)
-    js = get_json_from_url(url)
+    js = await get_json_from_url(url)
     return js
 
 
